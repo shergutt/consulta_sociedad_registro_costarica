@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RNP Intelligence Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">RNP</div>
+          <div>
+            <p class="eyebrow">Registro Nacional</p>
+            <h1>Intelligence Desk</h1>
+          </div>
+          <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema">
+            <span class="theme-icon-light">◐</span>
+            <span class="theme-icon-dark">◑</span>
+          </button>
+        </div>
+
+        <label class="search-box">
+          <span>Buscar persona, finca o plano</span>
+          <input id="searchInput" type="search" autocomplete="off" placeholder="Ej. 202830740, A-1753746" />
+        </label>
+
+        <form id="aiRunForm" class="ai-runner">
+          <div>
+            <p class="eyebrow">Motor de análisis</p>
+            <h2>minimax-m3</h2>
+            <p>Introduzca una cédula para ejecutar el análisis completo y almacenar los resultados en la base de datos local.</p>
+          </div>
+          <label>
+            <span>Identificación</span>
+            <input id="newCedulaInput" inputmode="numeric" autocomplete="off" placeholder="Ej. 202830740" />
+          </label>
+          <button id="runAnalysisBtn" class="button primary" type="submit">Iniciar análisis</button>
+        </form>
+
+        <section id="jobPanel" class="job-panel hidden" aria-live="polite">
+          <div class="job-header">
+            <div>
+              <p class="eyebrow">Job activo</p>
+              <strong id="jobStatus">Esperando</strong>
+            </div>
+            <span id="jobCedula" class="pill"></span>
+          </div>
+          <pre id="jobLog"></pre>
+        </section>
+
+        <div id="personList" class="person-list" aria-live="polite"></div>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">Base SQLite local</p>
+            <h2 id="heroTitle">Análisis registral centralizado</h2>
+          <p id="heroSubtitle">Personas, fincas, bienes muebles, alertas, consultas extra y evidencia cruda en una sola vista.</p>
+          </div>
+          <div class="hero-actions">
+            <button id="refreshBtn" class="button primary">Refrescar</button>
+            <button id="openReportBtn" class="button ghost">Ver reporte</button>
+          </div>
+        </section>
+
+        <section id="metrics" class="metrics" aria-label="Métricas"></section>
+
+        <section id="emptyState" class="empty-state hidden">
+          <h3>No hay datos seleccionados</h3>
+          <p>Ejecutá un análisis o seleccioná una persona de la lista.</p>
+        </section>
+
+        <section id="detailView" class="detail-grid hidden">
+          <div class="panel person-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Persona</p>
+                <h3 id="personName"></h3>
+              </div>
+              <span id="personCedula" class="pill"></span>
+            </div>
+            <dl id="analysisFacts" class="facts"></dl>
+          </div>
+
+          <div class="panel alert-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Alertas</p>
+                <h3>Señales automáticas</h3>
+              </div>
+              <span id="alertCountBadge" class="pill danger"></span>
+            </div>
+            <div id="alertsList" class="alert-list"></div>
+          </div>
+
+          <div class="panel wide">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Inventario</p>
+                <h3>Fincas</h3>
+              </div>
+              <div id="fincaTools" class="segmented"></div>
+            </div>
+            <div id="fincaGrid" class="finca-grid"></div>
+          </div>
+
+          <div class="panel wide">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Bienes muebles</p>
+                <h3>Vehículos y otros activos</h3>
+              </div>
+              <span id="assetCountBadge" class="pill"></span>
+            </div>
+            <div id="assetGrid" class="asset-grid"></div>
+          </div>
+
+          <div class="panel wide">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Evidencia registral</p>
+                <h3>Consultas y respaldos</h3>
+                <p class="panel-subtitle">Resultados normalizados por fuente. Abrí los archivos TXT, JSON o HTML para revisar el respaldo original de cada consulta.</p>
+              </div>
+              <span id="outputCountBadge" class="pill"></span>
+            </div>
+            <div id="outputList" class="evidence-browser"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Evidencia</p>
+                <h3>Archivos fuente</h3>
+              </div>
+            </div>
+            <div id="sourceList" class="source-list"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="sourceDialog" class="source-dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Archivo fuente</p>
+          <h3 id="sourceTitle"></h3>
+        </div>
+        <button id="closeSourceBtn" class="icon-button" aria-label="Cerrar">×</button>
+      </div>
+      <pre id="sourceContent"></pre>
+    </dialog>
+
+    <dialog id="reportDialog" class="report-dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Markdown</p>
+          <h3>Reporte de análisis</h3>
+        </div>
+        <button id="closeReportBtn" class="icon-button" aria-label="Cerrar">×</button>
+      </div>
+      <pre id="reportContent"></pre>
+    </dialog>
+
+    <template id="personTemplate">
+      <button class="person-card">
+        <span class="person-card-name"></span>
+        <span class="person-card-meta"></span>
+        <span class="person-card-stats"></span>
+      </button>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

@@ -40,6 +40,93 @@ python3 rnp_consulta.py 3-109-766273 --user correo@ejemplo.com --pass MiClave
 RNP_USER=correo@ejemplo.com RNP_PASS=MiClave python3 rnp_consulta.py 3109766273
 ```
 
+## Base de datos local
+
+Para guardar los análisis completos por persona en SQLite:
+
+```bash
+python3 rnp_database.py ingest EVELIO_202830740 --cedula 202830740
+python3 rnp_database.py list
+python3 rnp_database.py show 202830740
+```
+
+La base por defecto es `rnp_personas.sqlite`. Guarda personas, análisis,
+fincas, bienes muebles, consultas extra, alertas y los archivos crudos
+(`.json`, `.txt`, `.html`, `.md`) para auditoría.
+
+Cuando se usa el skill/orquestador `build_rnp_report.py`, la base se actualiza
+automáticamente al terminar `analisis.md` si existe `rnp_database.py` en el
+proyecto. Usá `--no-db` para saltar este paso o `--db RUTA` para elegir otro
+archivo SQLite.
+
+El orquestador ahora corre por defecto:
+
+```bash
+python3 ~/.codex/skills/analyze-rnp-cedula/scripts/build_rnp_report.py 202830740 --project .
+```
+
+Ese flujo consulta Bienes Inmuebles, Catastro por plano, Historia de finca,
+Consulta por número de finca, Gravámenes/Hipotecas, Documentos/Diario, Diario
+de Defectos, Libro de Primeras Presentaciones, Anotaciones/Trámites/Marginales,
+Valores de finca, Historia de gravámenes, Bienes Muebles por identificación,
+Historia de bienes muebles, Historia/Citas de presentaciones muebles y
+Gravámenes de bienes muebles cuando haya citas.
+Los bienes muebles se guardan en `<CARPETA_PERSONA>/bienes_muebles/` y se
+ingestan en la tabla `movable_assets`. Para omitir esa consulta:
+
+```bash
+python3 ~/.codex/skills/analyze-rnp-cedula/scripts/build_rnp_report.py 202830740 --project . --no-muebles
+```
+
+Scripts manuales para profundizar sobre activos específicos cuando ya tenés el
+identificador:
+
+```bash
+python3 rnp_vehiculos.py ABC123
+python3 rnp_aeronaves.py --serie SERIE123
+python3 rnp_buques.py --matricula MATRICULA123
+```
+
+## Dashboard local
+
+Para explorar la base desde el navegador:
+
+```bash
+python3 rnp_dashboard.py
+```
+
+Abrí `http://127.0.0.1:8765`. El dashboard muestra métricas generales,
+personas, fincas, bienes muebles, alertas, consultas extra, reporte Markdown y
+archivos fuente guardados en SQLite.
+
+El panel **IA runner minimax-m3** permite ingresar una cédula nueva desde el
+navegador. El servidor local ejecuta el skill `analyze-rnp-cedula`, genera el
+reporte y actualiza `rnp_personas.sqlite`; la pantalla muestra logs y refresca
+la persona cuando el job termina.
+
+El runner usa MiniMax como preflight antes de correr el skill. Puede usar
+`MINIMAX_API_KEY` desde `.env` o una sesión ya configurada con `mmx auth login`.
+La llave no se guarda en el código ni se devuelve por la API del dashboard.
+
+Opciones útiles:
+
+```bash
+python3 rnp_dashboard.py --db rnp_personas.sqlite --port 8765
+python3 rnp_dashboard.py --host 127.0.0.1 --port 9000
+python3 rnp_dashboard.py --ai-model minimax-m3
+```
+
+Endpoints del runner:
+
+```bash
+curl -X POST http://127.0.0.1:8765/api/run-analysis \
+  -H 'Content-Type: application/json' \
+  -d '{"cedula":"202830740"}'
+
+curl http://127.0.0.1:8765/api/jobs
+curl http://127.0.0.1:8765/api/jobs/JOB_ID
+```
+
 Si no se indican, el script pedirá la cédula y las credenciales de forma interactiva
 (la contraseña se solicita de forma oculta).
 

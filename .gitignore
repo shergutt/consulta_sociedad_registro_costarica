@@ -10,5 +10,35 @@ env/
 .env
 *.env
 
+# Salidas generadas por consultas RNP
+rnp_*_fincas*/
+*_muebles/
+VEHICULO_*/
+AERONAVE_*/
+BUQUE_*/
+*_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/
+*_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/
+*_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/
+catastro_planos/
+historia_fincas/
+gravamenes_hipotecas/
+documentos_diario/
+finca_numero/
+diario_defectos/
+primeras_presentaciones/
+anotaciones_tramites/
+valores_finca/
+historia_gravamenes_inmuebles/
+historia_bienes_muebles/
+historia_presentaciones_muebles/
+citas_presentacion_muebles/
+gravamenes_bienes_muebles/
+debug_*.py
+
+# Base de datos local con información personal/registral
+*.sqlite
+*.sqlite3
+*.db
+
 # Sistema
 .DS_Store
