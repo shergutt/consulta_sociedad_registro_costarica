@@ -10,7 +10,26 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div class="shell">
+    <div id="loginScreen" class="login-screen">
+      <div class="login-box">
+        <div class="brand-mark">RNP</div>
+        <h1>Intelligence Desk</h1>
+        <form id="loginForm">
+          <label>
+            <span>Usuario</span>
+            <input id="loginUsername" type="text" autocomplete="username" required />
+          </label>
+          <label>
+            <span>Contraseña</span>
+            <input id="loginPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="button primary">Iniciar sesión</button>
+          <p id="loginError" class="login-error hidden"></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="appShell" class="shell hidden">
       <aside class="sidebar">
         <div class="brand">
           <div class="brand-mark">RNP</div>
@@ -24,6 +43,12 @@
           </button>
         </div>
 
+        <div class="user-bar">
+          <span id="userDisplay" class="user-display"></span>
+          <button id="adminPanelBtn" class="button ghost hidden">Admin</button>
+          <button id="logoutBtn" class="button ghost">Salir</button>
+        </div>
+
         <label class="search-box">
           <span>Buscar persona, finca o plano</span>
           <input id="searchInput" type="search" autocomplete="off" placeholder="Ej. 202830740, A-1753746" />
@@ -32,7 +57,6 @@
         <form id="aiRunForm" class="ai-runner">
           <div>
             <p class="eyebrow">Motor de análisis</p>
-            <h2>minimax-m3</h2>
             <p>Introduzca una cédula para ejecutar el análisis completo y almacenar los resultados en la base de datos local.</p>
           </div>
           <label>
@@ -145,6 +169,43 @@
         </section>
       </main>
     </div>
+
+    <dialog id="adminDialog" class="admin-dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Administración</p>
+          <h3>Gestión de usuarios</h3>
+        </div>
+        <button id="closeAdminBtn" class="icon-button" aria-label="Cerrar">×</button>
+      </div>
+      <div class="admin-content">
+        <form id="addUserForm" class="add-user-form">
+          <h4>Crear usuario</h4>
+          <div class="form-row">
+            <label>
+              <span>Usuario</span>
+              <input id="newUsername" type="text" required />
+            </label>
+            <label>
+              <span>Contraseña</span>
+              <input id="newUserPassword" type="password" required />
+            </label>
+            <label>
+              <span>Rol</span>
+              <select id="newUserRole">
+                <option value="user">Usuario</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </label>
+            <button type="submit" class="button primary">Crear</button>
+          </div>
+        </form>
+        <div class="user-list-section">
+          <h4>Usuarios existentes</h4>
+          <div id="userList" class="user-list"></div>
+        </div>
+      </div>
+    </dialog>
 
     <dialog id="sourceDialog" class="source-dialog">
       <div class="dialog-header">

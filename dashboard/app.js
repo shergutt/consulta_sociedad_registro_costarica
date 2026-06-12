@@ -7,6 +7,8 @@ const state = {
   fincaMode: 'all',
   activeJobId: null,
   jobTimer: null,
+  user: null,
+  token: localStorage.getItem('rnp_token'),
 };
 
 function initTheme() {
@@ -24,9 +26,23 @@ function toggleTheme() {
 
 initTheme();
 
-document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-
 const els = {
+  loginScreen: document.querySelector('#loginScreen'),
+  appShell: document.querySelector('#appShell'),
+  loginForm: document.querySelector('#loginForm'),
+  loginUsername: document.querySelector('#loginUsername'),
+  loginPassword: document.querySelector('#loginPassword'),
+  loginError: document.querySelector('#loginError'),
+  userDisplay: document.querySelector('#userDisplay'),
+  adminPanelBtn: document.querySelector('#adminPanelBtn'),
+  logoutBtn: document.querySelector('#logoutBtn'),
+  adminDialog: document.querySelector('#adminDialog'),
+  closeAdminBtn: document.querySelector('#closeAdminBtn'),
+  addUserForm: document.querySelector('#addUserForm'),
+  newUsername: document.querySelector('#newUsername'),
+  newUserPassword: document.querySelector('#newUserPassword'),
+  newUserRole: document.querySelector('#newUserRole'),
+  userList: document.querySelector('#userList'),
   personList: document.querySelector('#personList'),
   searchInput: document.querySelector('#searchInput'),
   metrics: document.querySelector('#metrics'),
@@ -62,7 +78,10 @@ const els = {
   jobStatus: document.querySelector('#jobStatus'),
   jobCedula: document.querySelector('#jobCedula'),
   jobLog: document.querySelector('#jobLog'),
+  themeToggle: document.querySelector('#themeToggle'),
 };
+
+els.themeToggle.addEventListener('click', toggleTheme);
 
 function formatNumber(value) {
   const number = Number(value || 0);
@@ -88,15 +107,27 @@ function el(tag, className, content) {
   return node;
 }
 
+function authHeaders() {
+  const headers = { Accept: 'application/json' };
+  if (state.token) {
+    headers['Authorization'] = `Bearer ${state.token}`;
+  }
+  return headers;
+}
+
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, {
     ...options,
     headers: {
-      Accept: 'application/json',
+      ...authHeaders(),
       ...(options.headers || {}),
     },
   });
   const payload = await response.json();
+  if (response.status === 401) {
+    await handleLogout();
+    throw new Error('Sesión expirada');
+  }
   if (!response.ok) {
     throw new Error(payload.error || `HTTP ${response.status}`);
   }
@@ -109,6 +140,135 @@ async function postJson(url, payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
+}
+
+async function deleteJson(url) {
+  return fetchJson(url, { method: 'DELETE' });
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+  els.loginError.classList.add('hidden');
+  const username = els.loginUsername.value.trim();
+  const password = els.loginPassword.value;
+
+  try {
+    const result = await postJson('/api/login', { username, password });
+    state.token = result.token;
+    state.user = result.user;
+    localStorage.setItem('rnp_token', result.token);
+    showApp();
+  } catch (error) {
+    els.loginError.textContent = error.message;
+    els.loginError.classList.remove('hidden');
+  }
+}
+
+async function handleLogout() {
+  if (state.jobTimer) {
+    clearInterval(state.jobTimer);
+    state.jobTimer = null;
+  }
+  state.activeJobId = null;
+  els.jobPanel.classList.add('hidden');
+  if (state.token) {
+    try {
+      await postJson('/api/logout', {});
+    } catch {}
+  }
+  state.token = null;
+  state.user = null;
+  localStorage.removeItem('rnp_token');
+  showLogin();
+}
+
+async function checkSession() {
+  if (!state.token) {
+    showLogin();
+    return;
+  }
+  try {
+    state.user = await fetchJson('/api/me');
+    showApp();
+  } catch {
+    state.token = null;
+    localStorage.removeItem('rnp_token');
+    showLogin();
+  }
+}
+
+function showLogin() {
+  els.loginScreen.classList.remove('hidden');
+  els.appShell.classList.add('hidden');
+}
+
+function showApp() {
+  els.loginScreen.classList.add('hidden');
+  els.appShell.classList.remove('hidden');
+  els.userDisplay.textContent = `${state.user.username} (${state.user.role})`;
+  if (state.user.role === 'admin') {
+    els.adminPanelBtn.classList.remove('hidden');
+  } else {
+    els.adminPanelBtn.classList.add('hidden');
+  }
+  loadApp();
+}
+
+async function openAdminPanel() {
+  els.adminDialog.showModal();
+  await loadUsers();
+}
+
+async function loadUsers() {
+  try {
+    const result = await fetchJson('/api/users');
+    renderUserList(result.users || []);
+  } catch (error) {
+    els.userList.replaceChildren(el('p', 'error', error.message));
+  }
+}
+
+function renderUserList(users) {
+  els.userList.replaceChildren(
+    ...users.map((user) => {
+      const item = el('div', 'user-item');
+      const info = el('div', 'user-info');
+      info.append(el('strong', '', user.username));
+      info.append(el('span', 'pill', user.role));
+      item.append(info);
+      if (user.id !== state.user.id) {
+        const deleteBtn = el('button', 'button ghost', 'Eliminar');
+        deleteBtn.addEventListener('click', async () => {
+          if (confirm(`¿Eliminar usuario ${user.username}?`)) {
+            try {
+              await deleteJson(`/api/users/${user.id}`);
+              await loadUsers();
+            } catch (error) {
+              alert(error.message);
+            }
+          }
+        });
+        item.append(deleteBtn);
+      }
+      return item;
+    }),
+  );
+}
+
+async function handleAddUser(event) {
+  event.preventDefault();
+  const username = els.newUsername.value.trim();
+  const password = els.newUserPassword.value;
+  const role = els.newUserRole.value;
+
+  try {
+    await postJson('/api/users', { username, password, role });
+    els.newUsername.value = '';
+    els.newUserPassword.value = '';
+    await loadUsers();
+  } catch (error) {
+    alert(error.message);
+  }
 }
 
 async function loadApp(preferredCedula = state.selectedCedula) {
@@ -694,6 +854,11 @@ function openReport() {
   els.reportDialog.showModal();
 }
 
+els.loginForm.addEventListener('submit', handleLogin);
+els.logoutBtn.addEventListener('click', handleLogout);
+els.adminPanelBtn.addEventListener('click', openAdminPanel);
+els.closeAdminBtn.addEventListener('click', () => els.adminDialog.close());
+els.addUserForm.addEventListener('submit', handleAddUser);
 els.refreshBtn.addEventListener('click', () => loadApp());
 els.aiRunForm.addEventListener('submit', startAnalysisJob);
 els.openReportBtn.addEventListener('click', openReport);
@@ -704,4 +869,4 @@ els.searchInput.addEventListener('input', (event) => {
   renderPersonList();
 });
 
-loadApp();
+checkSession();

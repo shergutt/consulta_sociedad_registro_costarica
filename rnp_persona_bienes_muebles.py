@@ -301,28 +301,9 @@ def parse_result(h):
     }
 
 
-def parse_person_name(h):
-    ignored = {'BIENES', 'NO HAY BIENES', 'NO HAY REGISTROS'}
-    for value in re.findall(r'<span[^>]*class="titulo"[^>]*>(.*?)</span>', h, re.S | re.I):
-        title = clean(value)
-        if title and title.upper() not in ignored:
-            return title
-    return ''
-
-
 def first_match(pattern, h):
     m = re.search(pattern, h, re.S | re.I)
     return clean(m.group(1)) if m else ''
-
-
-def parse_label_pairs(h):
-    out = {}
-    for m in re.finditer(r'<span class="label">([^<]*):?\s*</span>\s*([^<\n\r]+)', h, re.S | re.I):
-        key = clean(m.group(1)).rstrip(':')
-        val = clean(m.group(2))
-        if key and val and key not in out:
-            out[key] = val
-    return out
 
 
 def parse_bien_detail(h):

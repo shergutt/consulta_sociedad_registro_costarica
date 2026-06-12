@@ -13,7 +13,6 @@ import sys
 from rnp_extra_common import (
     add_auth_args,
     add_batch_args,
-    clean,
     finca_records_from_dir,
     limit_records,
     login_from_args,
@@ -21,7 +20,6 @@ from rnp_extra_common import (
     open_free_query,
     require_direct_or_folder,
     save_outputs,
-    safe_name,
 )
 
 PROVINCIAS_PLANO = {

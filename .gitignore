@@ -42,3 +42,4 @@ debug_*.py
 
 # Sistema
 .DS_Store
+.vercel
