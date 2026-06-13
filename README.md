@@ -73,7 +73,7 @@ Configurá `DATABASE_URL` en `.env` (o variable de entorno). Por defecto:
 
 ### Frontend (dashboard)
 
-`dashboard/index.html` + `dashboard/app.js` consumen el backend en `:8000`.
+`dashboard/index.html` + los módulos en `dashboard/js/` consumen el backend en `:8000`.
 `vercel.json` redirige `/api/*` al backend.
 
 ### Migración desde SQLite legacy

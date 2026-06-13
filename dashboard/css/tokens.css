@@ -1,0 +1,84 @@
+:root {
+  --ink: #050505;
+  --ink-muted: #3a3a35;
+  --paper: #e8e7db;
+  --paper-soft: #f7f8f2;
+  --card: #f7f8f2;
+  --line: #d7d6c9;
+  --accent: #9adf0a;
+  --accent-dark: #7fc900;
+  --accent-text: #0d0d0d;
+  --accent-soft: #ecfac7;
+  --secondary: #0dbae1;
+  --secondary-dark: #089ec0;
+  --warning: #b8860b;
+  --warning-soft: #f3e2b3;
+  --danger: #8b3a3a;
+  --danger-soft: #d4a5a5;
+  --success: #9adf0a;
+  --success-hover: #7fc900;
+  --success-soft: #ecfac7;
+  --info: #0dbae1;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --radius: 10px;
+  --radius-lg: 14px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --text-xs: 0.7rem;
+  --text-sm: 0.8rem;
+  --text-base: 0.95rem;
+  --text-lg: 1.1rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-drawer: 20;
+  --z-modal: 30;
+  --z-toast: 40;
+  --z-palette: 50;
+
+  --app-bar-height: 68px;
+  --side-panel-width: 340px;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --ink: #e8e8e8;
+  --ink-muted: #a0a0a0;
+  --paper: #141414;
+  --paper-soft: #1c1c1c;
+  --card: #242424;
+  --line: #3a3a3a;
+  --accent: #a8e60f;
+  --accent-dark: #8fd400;
+  --accent-text: #0d0d0d;
+  --accent-soft: #2a3606;
+  --secondary: #14c8f0;
+  --secondary-dark: #0fb0d4;
+  --warning: #e6b800;
+  --warning-soft: #5a4a1f;
+  --danger: #e05a5a;
+  --danger-soft: #5a2a2a;
+  --success: #a8e60f;
+  --success-hover: #8fd400;
+  --success-soft: #2a3606;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.28);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.4);
+}

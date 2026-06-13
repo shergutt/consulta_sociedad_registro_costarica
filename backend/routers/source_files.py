@@ -15,7 +15,7 @@ def source_file(
     db: DBSession = Depends(get_db),
 ):
     row = (
-        db.query(SourceFile, QueryRun.cedula, Person.nombre)
+        db.query(SourceFile, Person.cedula, Person.nombre)
         .join(QueryRun, QueryRun.id == SourceFile.query_run_id)
         .join(Person, Person.id == QueryRun.person_id)
         .filter(SourceFile.id == source_id)

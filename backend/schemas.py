@@ -194,7 +194,7 @@ class SourceFileDetail(BaseModel):
 
 
 class PersonDetailResponse(BaseModel):
-    person: dict
+    person: PersonOut
     analysis: dict
     fincas: list[FincaOut]
     movable_assets: list[MovableAssetOut]

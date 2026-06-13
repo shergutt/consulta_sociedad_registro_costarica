@@ -1,4 +1,5 @@
 import hashlib
+import secrets
 import uuid
 from datetime import datetime, timezone, timedelta
 from fastapi import Depends, HTTPException, status
@@ -76,24 +77,6 @@ def cleanup_expired_sessions(db: DBSession) -> None:
     now = datetime.now(timezone.utc)
     db.query(SessionModel).filter(SessionModel.expires_at <= now).delete()
     db.commit()
-
-
-def ensure_default_admin(db: DBSession, username: str = "admin", password: str = "admin") -> User | None:
-    existing = db.query(User).filter(User.role == "admin").first()
-    if existing:
-        return None
-    now = datetime.now(timezone.utc)
-    user = User(
-        username=username,
-        password_hash=hash_password(password),
-        role="admin",
-        created_at=now,
-        updated_at=now,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
 
 
 def get_current_user(

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, text, exists
 from sqlalchemy.orm import Session as DBSession
 from database import get_db
-from schemas import SummaryResponse, PersonsResponse, PersonSummary, PersonDetailResponse, FincaOut, MovableAssetOut, AlertOut, QueryOutputOut, SourceFileOut
+from schemas import SummaryResponse, PersonsResponse, PersonSummary, PersonDetailResponse, PersonOut, FincaOut, MovableAssetOut, AlertOut, QueryOutputOut, SourceFileOut
 from models import Person, QueryRun, Finca, MovableAsset, Alert, QueryOutput, SourceFile, FincaQueryOutput, PersonQuery
 from auth import get_optional_user
 
