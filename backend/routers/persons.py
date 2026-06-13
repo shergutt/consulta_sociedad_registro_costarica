@@ -1,14 +1,46 @@
 import json
 import re
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func, text
+from sqlalchemy import func, text, exists
 from sqlalchemy.orm import Session as DBSession
 from database import get_db
 from schemas import SummaryResponse, PersonsResponse, PersonSummary, PersonDetailResponse, FincaOut, MovableAssetOut, AlertOut, QueryOutputOut, SourceFileOut
-from models import Person, QueryRun, Finca, MovableAsset, Alert, QueryOutput, SourceFile, FincaQueryOutput
+from models import Person, QueryRun, Finca, MovableAsset, Alert, QueryOutput, SourceFile, FincaQueryOutput, PersonQuery
 from auth import get_optional_user
 
 router = APIRouter(tags=["summary"])
+
+
+def _visible_person_ids(db: DBSession, user):
+    """Return set of person_ids the current user can read.
+
+    Admin: None (no filter, sees all). Authenticated user: only persons
+    for which they have at least one entry in person_queries.
+    Anonymous: empty set (no access at all).
+    """
+    if user is None:
+        return set()
+    if user.role == "admin":
+        return None
+    rows = (
+        db.query(PersonQuery.person_id)
+        .filter(PersonQuery.user_id == user.id)
+        .distinct()
+        .all()
+    )
+    return {r[0] for r in rows}
+
+
+def _user_can_see(db: DBSession, user, person_id: int) -> bool:
+    if user is None:
+        return False
+    if user.role == "admin":
+        return True
+    return db.query(
+        exists().where(
+            (PersonQuery.person_id == person_id) & (PersonQuery.user_id == user.id)
+        )
+    ).scalar()
 
 
 @router.get("/api/summary", response_model=SummaryResponse)
@@ -16,15 +48,64 @@ def summary(
     user = Depends(get_optional_user),
     db: DBSession = Depends(get_db),
 ):
-    """All authenticated users see the same shared counts in v2."""
-    persons = db.query(func.count(Person.id)).scalar() or 0
-    runs = db.query(func.count(QueryRun.id)).scalar() or 0
-    fincas = db.query(func.count(Finca.id)).scalar() or 0
-    movable_assets = db.query(func.count(MovableAsset.id)).scalar() or 0
-    alerts = db.query(func.count(Alert.id)).scalar() or 0
-    source_files = db.query(func.count(SourceFile.id)).scalar() or 0
-    query_outputs = db.query(func.count(QueryOutput.id)).scalar() or 0
-    total_fiscal = db.query(func.coalesce(func.sum(Finca.valor_fiscal_num), 0)).scalar() or 0
+    visible = _visible_person_ids(db, user)
+
+    if visible is None:
+        persons = db.query(func.count(Person.id)).scalar() or 0
+        runs = db.query(func.count(QueryRun.id)).scalar() or 0
+        fincas = db.query(func.count(Finca.id)).scalar() or 0
+        movable_assets = db.query(func.count(MovableAsset.id)).scalar() or 0
+        alerts = db.query(func.count(Alert.id)).scalar() or 0
+        source_files = db.query(func.count(SourceFile.id)).scalar() or 0
+        query_outputs = db.query(func.count(QueryOutput.id)).scalar() or 0
+        total_fiscal = db.query(func.coalesce(func.sum(Finca.valor_fiscal_num), 0)).scalar() or 0
+    else:
+        if not visible:
+            return SummaryResponse(
+                db_path="postgresql",
+                persons=0, runs=0, fincas=0, movable_assets=0,
+                alerts=0, source_files=0, query_outputs=0,
+                total_fiscal_value=0.0,
+            )
+        persons = db.query(func.count(func.distinct(Person.id))).filter(Person.id.in_(visible)).scalar() or 0
+        runs = (
+            db.query(func.count(QueryRun.id))
+            .filter(QueryRun.person_id.in_(visible))
+            .scalar() or 0
+        )
+        fincas = (
+            db.query(func.count(Finca.id))
+            .filter(Finca.persona_id.in_(visible))
+            .scalar() or 0
+        )
+        movable_assets = (
+            db.query(func.count(MovableAsset.id))
+            .filter(MovableAsset.persona_id.in_(visible))
+            .scalar() or 0
+        )
+        alerts = (
+            db.query(func.count(Alert.id))
+            .join(QueryRun, QueryRun.id == Alert.query_run_id)
+            .filter(QueryRun.person_id.in_(visible))
+            .scalar() or 0
+        )
+        source_files = (
+            db.query(func.count(SourceFile.id))
+            .join(QueryRun, QueryRun.id == SourceFile.query_run_id)
+            .filter(QueryRun.person_id.in_(visible))
+            .scalar() or 0
+        )
+        query_outputs = (
+            db.query(func.count(QueryOutput.id))
+            .join(QueryRun, QueryRun.id == QueryOutput.query_run_id)
+            .filter(QueryRun.person_id.in_(visible))
+            .scalar() or 0
+        )
+        total_fiscal = (
+            db.query(func.coalesce(func.sum(Finca.valor_fiscal_num), 0))
+            .filter(Finca.persona_id.in_(visible))
+            .scalar() or 0
+        )
 
     return SummaryResponse(
         db_path="postgresql",
@@ -44,7 +125,16 @@ def persons(
     user = Depends(get_optional_user),
     db: DBSession = Depends(get_db),
 ):
-    """List all persons. Each entry shows the latest query_run info."""
+    """List persons the current user is allowed to read.
+
+    Visibility is governed by `person_queries`: a user sees a person only
+    if they have at least one entry there (i.e. they triggered a
+    `run-analysis` for that cedula). Admin sees everyone.
+    """
+    visible = _visible_person_ids(db, user)
+    if visible == set():
+        return PersonsResponse(persons=[])
+
     latest_run_subq = (
         db.query(QueryRun.id)
         .filter(QueryRun.person_id == Person.id)
@@ -87,8 +177,11 @@ def persons(
             QueryRun.created_at,
         )
         .outerjoin(QueryRun, QueryRun.id == latest_run_subq)
-        .order_by(QueryRun.ran_at.desc().nulls_last(), Person.cedula)
     )
+    if visible is not None:
+        query = query.filter(Person.id.in_(visible))
+
+    query = query.order_by(QueryRun.ran_at.desc().nulls_last(), Person.cedula)
     rows = query.all()
 
     people = []
@@ -129,7 +222,7 @@ def person_detail(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cédula inválida")
 
     person = db.query(Person).filter(Person.cedula == cedula_clean).first()
-    if not person:
+    if not person or not _user_can_see(db, user, person.id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No hay datos para cédula {cedula_clean}")
 
     run = (

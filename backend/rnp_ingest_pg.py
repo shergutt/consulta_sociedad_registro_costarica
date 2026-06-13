@@ -288,11 +288,16 @@ def ingest_folder(db_url, folder_path, cedula=None, user_id=None):
               timestamp, timestamp))
         run_id = cur.fetchone()[0]
 
-        # 3) Register the search in person_queries (audit)
-        cur.execute("""
-            INSERT INTO person_queries (person_id, user_id, queried_at)
-            VALUES (%s, %s, %s)
-        """, (person_id, user_id, timestamp))
+        # 3) Register the search in person_queries (audit). Only when the
+        #    caller identified themselves (e.g. via /api/run-analysis).
+        #    CLI invocations without --user-id must NOT create rows with
+        #    user_id=NULL, which would grant no one and pollute the
+        #    visibility filter downstream.
+        if user_id is not None:
+            cur.execute("""
+                INSERT INTO person_queries (person_id, user_id, queried_at)
+                VALUES (%s, %s, %s)
+            """, (person_id, user_id, timestamp))
 
         # 4) Clear per-run children so we rebuild from this folder's contents.
         #    finca/movable rows stay — they're shared per person, we'll UPSERT them.

@@ -3,10 +3,24 @@ from sqlalchemy import or_, func, literal_column
 from sqlalchemy.orm import Session as DBSession
 from database import get_db
 from schemas import SearchResponse, SearchResult
-from models import Person, Finca, MovableAsset
+from models import Person, Finca, MovableAsset, PersonQuery
 from auth import get_optional_user
 
 router = APIRouter(tags=["search"])
+
+
+def _visible_person_ids(db: DBSession, user):
+    if user is None:
+        return set()
+    if user.role == "admin":
+        return None
+    rows = (
+        db.query(PersonQuery.person_id)
+        .filter(PersonQuery.user_id == user.id)
+        .distinct()
+        .all()
+    )
+    return {r[0] for r in rows}
 
 
 @router.get("/api/search", response_model=SearchResponse)
@@ -17,6 +31,10 @@ def search(
 ):
     term = (q or "").strip()
     if not term:
+        return SearchResponse(results=[])
+
+    visible = _visible_person_ids(db, user)
+    if visible == set():
         return SearchResponse(results=[])
 
     like = f"%{term}%"
@@ -41,9 +59,10 @@ def search(
                 Finca.ubicacion.ilike(like),
             )
         )
-        .order_by(Person.nombre, Finca.index_no)
-        .limit(80)
     )
+    if visible is not None:
+        finca_query = finca_query.filter(Person.id.in_(visible))
+    finca_query = finca_query.order_by(Person.nombre, Finca.index_no).limit(80)
 
     asset_query = (
         db.query(
@@ -74,9 +93,10 @@ def search(
                 MovableAsset.modelo.ilike(like),
             )
         )
-        .order_by(Person.nombre, MovableAsset.index_no)
-        .limit(80)
     )
+    if visible is not None:
+        asset_query = asset_query.filter(Person.id.in_(visible))
+    asset_query = asset_query.order_by(Person.nombre, MovableAsset.index_no).limit(80)
 
     finca_rows = finca_query.all()
     asset_rows = asset_query.all()

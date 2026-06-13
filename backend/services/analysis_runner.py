@@ -188,10 +188,37 @@ def start_analysis(cedula: str, user_id: int | None, pausa: float = 15.0, limite
     if not SKILL_RUNNER.exists():
         raise FileNotFoundError(f"No existe el orquestador: {SKILL_RUNNER}")
 
+    from database import SessionLocal
+    from models import Person, PersonQuery
+
+    person_id: int | None = None
+    db = SessionLocal()
+    try:
+        person = db.query(Person).filter(Person.cedula == digits).first()
+        if person is None:
+            person = Person(cedula=digits, latest_folder_path="")
+            db.add(person)
+            db.flush()
+        person_id = person.id
+        if user_id is not None:
+            already = (
+                db.query(PersonQuery)
+                .filter(PersonQuery.person_id == person_id, PersonQuery.user_id == user_id)
+                .first()
+            )
+            if already is None:
+                db.add(PersonQuery(person_id=person_id, user_id=user_id))
+                db.commit()
+            else:
+                db.rollback()
+    finally:
+        db.close()
+
     job_id = uuid.uuid4().hex[:12]
     created_at = _now_iso()
     job = {
         "id": job_id, "user_id": user_id, "cedula": digits,
+        "person_id": person_id,
         "ai_model": settings.ai_model, "status": "queued",
         "created_at": created_at, "updated_at": created_at,
         "started_at": None, "finished_at": None, "returncode": None,
