@@ -43,3 +43,9 @@ debug_*.py
 # Sistema
 .DS_Store
 .vercel
+
+# Dashboard
+dashboard/.gitignore
+
+# Command Code
+.commandcode/

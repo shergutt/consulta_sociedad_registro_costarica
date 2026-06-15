@@ -3,13 +3,15 @@
     --side-panel-width: 300px;
   }
 
-  .hero {
+  .hero,
+  .detail-header {
     flex-direction: column;
     align-items: flex-start;
     padding: var(--space-6);
   }
 
-  .hero__title {
+  .hero__title,
+  .detail-header__title {
     font-size: var(--text-2xl);
   }
 
@@ -61,6 +63,10 @@
 
   .app-bar__search {
     max-width: 240px;
+  }
+
+  .job-chip {
+    max-width: 140px;
   }
 
   .user-menu__name {
@@ -141,6 +147,11 @@
     gap: var(--space-2);
   }
 
+  .job-chip {
+    max-width: 120px;
+    padding: 8px 12px;
+  }
+
   .button--icon,
   .icon-button {
     width: 44px;
@@ -157,16 +168,19 @@
     min-height: 44px;
   }
 
-  .hero {
+  .hero,
+  .detail-header {
     padding: var(--space-5);
     gap: var(--space-4);
   }
 
-  .hero__title {
+  .hero__title,
+  .detail-header__title {
     font-size: var(--text-xl);
   }
 
-  .hero__subtitle {
+  .hero__subtitle,
+  .detail-header__meta {
     font-size: var(--text-sm);
   }
 
@@ -324,14 +338,16 @@
     min-height: 48px;
   }
 
+  .detail-toolbar {
+    padding: var(--space-3) 0;
+    gap: var(--space-3);
+  }
+
   .tabs {
-    position: sticky;
-    top: var(--app-bar-height);
     z-index: var(--z-sticky);
     background: var(--paper);
-    border: none;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
     padding: var(--space-2) var(--space-3);
     padding-right: 40px;
   }
@@ -389,6 +405,10 @@
     gap: var(--space-1);
   }
 
+  .job-chip {
+    display: none;
+  }
+
   .button--icon,
   .icon-button {
     width: 40px;
@@ -397,11 +417,13 @@
     min-height: 40px;
   }
 
-  .hero {
+  .hero,
+  .detail-header {
     padding: var(--space-4);
   }
 
-  .hero__title {
+  .hero__title,
+  .detail-header__title {
     font-size: var(--text-lg);
   }
 

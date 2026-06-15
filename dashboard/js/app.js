@@ -61,6 +61,7 @@ const els = {
   themeToggle: document.querySelector('#themeToggle'),
   personList: document.querySelector('#personList'),
   personFilter: document.querySelector('#personFilter'),
+  heroSection: document.querySelector('#heroSection'),
   heroTitle: document.querySelector('#heroTitle'),
   heroSubtitle: document.querySelector('#heroSubtitle'),
   refreshBtn: document.querySelector('#refreshBtn'),
@@ -69,6 +70,7 @@ const els = {
   actionsDropdownMenu: document.querySelector('#actionsDropdownMenu'),
   openReportBtn: document.querySelector('#openReportBtn'),
   detailView: document.querySelector('#detailView'),
+  detailLoading: document.querySelector('#detailLoading'),
   emptyState: document.querySelector('#emptyState'),
   reportDialog: document.querySelector('#reportDialog'),
   reportContent: document.querySelector('#reportContent'),
@@ -125,6 +127,7 @@ els.loginForm?.addEventListener('submit', handleLogin);
 els.logoutBtn?.addEventListener('click', handleLogout);
 els.refreshBtn?.addEventListener('click', () => loadApp());
 els.openReportBtn?.addEventListener('click', openReport);
+document.querySelector('#openReportBtn2')?.addEventListener('click', openReport);
 els.closeReportBtn?.addEventListener('click', () => els.reportDialog?.close());
 els.closeSourceBtn?.addEventListener('click', () => els.sourceDialog?.close());
 
@@ -284,6 +287,7 @@ async function selectPerson(cedula) {
   selectCedula(cedula);
   setFincaMode('all');
   renderPersonList();
+  setDetailLoading(true);
 
   try {
     const detail = await fetchJson(`/api/persons/${encodeURIComponent(cedula)}`);
@@ -291,11 +295,24 @@ async function selectPerson(cedula) {
     renderDetail();
   } catch (error) {
     showToast(error.message, 'error');
+  } finally {
+    setDetailLoading(false);
+  }
+}
+
+function setDetailLoading(loading) {
+  els.detailLoading.classList.toggle('hidden', !loading);
+  if (loading) {
+    els.detailView.classList.add('hidden');
+    els.emptyState.classList.add('hidden');
+    els.heroSection.classList.add('hidden');
   }
 }
 
 function showEmpty(title, subtitle) {
   els.detailView.classList.add('hidden');
+  els.detailLoading.classList.add('hidden');
+  els.heroSection.classList.remove('hidden');
   els.emptyState.classList.remove('hidden');
   els.emptyState.querySelector('h3').textContent = title;
   els.emptyState.querySelector('p').textContent = subtitle;
@@ -308,10 +325,16 @@ function renderDetail() {
   if (!detail) return;
 
   els.emptyState.classList.add('hidden');
+  els.detailLoading.classList.add('hidden');
+  els.heroSection.classList.add('hidden');
   els.detailView.classList.remove('hidden');
-  els.heroTitle.textContent = detail.person.nombre || detail.person.cedula;
-  els.heroSubtitle.textContent = `Último análisis: ${text(detail.analysis.updated_at)} · ${detail.analysis.folder_path}`;
+
+  const detailTitle = els.detailView.querySelector('#detailTitle');
+  const detailMeta = els.detailView.querySelector('#detailMeta');
+  if (detailTitle) detailTitle.textContent = detail.person.nombre || detail.person.cedula;
+  if (detailMeta) detailMeta.textContent = `Último análisis: ${text(detail.analysis.updated_at)} · ${detail.analysis.folder_path}`;
   els.openReportBtn.classList.toggle('hidden', !detail.analysis.report_markdown);
+  els.detailView.querySelector('#openReportBtn2')?.classList.toggle('hidden', !detail.analysis.report_markdown);
 
   renderSummaryTab(detail);
   renderFincasTab(detail);

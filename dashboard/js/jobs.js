@@ -11,7 +11,7 @@ const statusLabels = {
 };
 
 export function initJobs(loadAppFn) {
-  const chip = document.querySelector('#jobChip');
+  const chip = document.querySelector('#jobStatus');
   const drawer = document.querySelector('#jobDrawer');
   const closeBtn = document.querySelector('#closeJobDrawerBtn');
   const openBtn = document.querySelector('#newAnalysisBtn');
@@ -65,7 +65,7 @@ export function initJobs(loadAppFn) {
 }
 
 function renderJobChip(job) {
-  const chip = document.querySelector('#jobChip');
+  const chip = document.querySelector('#jobStatus');
   if (!chip) return;
 
   const label = statusLabels[job.status] || job.status;
