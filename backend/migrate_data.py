@@ -21,7 +21,12 @@ from psycopg2.extras import execute_values
 
 ROOT = Path(__file__).parent.parent
 SQLITE_PATH = ROOT / "rnp_personas.sqlite"
-PG_URL = os.environ.get("DATABASE_URL", "postgresql://USER:PASS@HOST:PORT/DBNAME")
+PG_URL = os.environ.get("DATABASE_URL")
+if not PG_URL:
+    raise SystemExit(
+        "DATABASE_URL no está definido. Exportalo o configurá backend/.env "
+        "antes de correr la migración desde SQLite."
+    )
 
 
 def _parse_dt(value):

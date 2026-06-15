@@ -3,7 +3,7 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql://USER:PASS@HOST:PORT/DBNAME"
+    database_url: str
     rnp_user: str = ""
     rnp_pass: str = ""
     minimax_api_key: str = ""
@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000,http://localhost:8765"
     session_hours: int = 24
     require_minimax: bool = True
+
+    def __init__(self, **values) -> None:
+        super().__init__(**values)
+        if not self.database_url:
+            raise RuntimeError(
+                "DATABASE_URL no está definido. Configurá backend/.env "
+                "(copiá backend/.env.example) o exportá la variable de entorno."
+            )
 
     @property
     def cors_origin_list(self) -> list[str]:

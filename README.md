@@ -68,8 +68,8 @@ cd backend
 ./venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-Configurá `DATABASE_URL` en `.env` (o variable de entorno). Por defecto:
-`postgresql://USER:PASS@HOST:PORT/DBNAME`.
+Configurá `DATABASE_URL` en `.env` (o variable de entorno) con el DSN real de tu Postgres.
+Ejemplo: `postgresql://USER:PASS@HOST:PORT/DBNAME`.
 
 ### Frontend (dashboard)
 

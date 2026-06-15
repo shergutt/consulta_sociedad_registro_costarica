@@ -8,7 +8,9 @@ env/
 
 # Credenciales / entorno
 .env
+.env.*
 *.env
+!.env.example
 
 # Salidas generadas por consultas RNP
 rnp_*_fincas*/
