@@ -14,6 +14,7 @@ Credenciales (orden de prioridad): --user/--pass > .env > $RNP_USER/$RNP_PASS > 
 import argparse
 import getpass
 import html
+from html.parser import HTMLParser
 import json
 import os
 import re
@@ -36,6 +37,78 @@ TIPOS = {
     'identidad': '1',
     'juridica': '2',
 }
+
+
+class FormParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.forms = []
+        self.current = None
+        self.section = ''
+        self._h3 = None
+        self._a = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs_dict = {k: v or '' for k, v in attrs}
+        if tag == 'form':
+            self.current = {
+                'id': attrs_dict.get('id', ''),
+                'action': attrs_dict.get('action', ''),
+                'inputs': [],
+                'links': [],
+                'text': [],
+            }
+            self.section = ''
+            return
+        if self.current is None:
+            return
+        if tag == 'input':
+            self.current['inputs'].append(attrs_dict)
+            for key in ('name', 'value', 'type'):
+                if attrs_dict.get(key):
+                    self.current['text'].append(attrs_dict[key])
+        elif tag == 'h3':
+            self._h3 = []
+        elif tag == 'a':
+            self._a = {'attrs': attrs_dict, 'text': []}
+
+    def handle_data(self, data):
+        if self.current is not None and data.strip():
+            self.current['text'].append(data)
+        if self._h3 is not None:
+            self._h3.append(data)
+        if self._a is not None:
+            self._a['text'].append(data)
+
+    def handle_endtag(self, tag):
+        if tag == 'h3' and self._h3 is not None:
+            self.section = clean(' '.join(self._h3))
+            self._h3 = None
+        elif tag == 'a' and self._a is not None and self.current is not None:
+            self.current['links'].append({
+                'section': self.section,
+                'text': clean(' '.join(self._a['text'])),
+                'attrs': self._a['attrs'],
+            })
+            self._a = None
+        elif tag == 'form' and self.current is not None:
+            self.forms.append(self.current)
+            self.current = None
+            self.section = ''
+
+
+def parse_forms(h):
+    parser = FormParser()
+    parser.feed(h or '')
+    return parser.forms
+
+
+def form_contains(form, needle):
+    target = (needle or '').casefold()
+    if target == 'type="password"':
+        return any(i.get('type', '').casefold() == 'password' for i in form['inputs'])
+    haystack = ' '.join(form['text']).casefold()
+    return target in haystack
 
 
 class RNP:
@@ -66,6 +139,9 @@ class RNP:
 
     @staticmethod
     def _form(h, needle):
+        for form in parse_forms(h):
+            if form_contains(form, needle):
+                return form['id'], form['action'], form
         for m in re.finditer(r'<form[^>]*id="([^"]*)"[^>]*action="([^"]*)"[^>]*>(.*?)</form>', h, re.S):
             if needle in m.group(3):
                 return m.group(1), m.group(2), m.group(3)
@@ -73,6 +149,16 @@ class RNP:
 
     @staticmethod
     def _inputs(body):
+        if isinstance(body, dict):
+            out = {}
+            for inp in body.get('inputs', []):
+                name = inp.get('name')
+                if name:
+                    out[name] = {
+                        'val': html.unescape(inp.get('value', '')),
+                        'type': inp.get('type', ''),
+                    }
+            return out
         out = {}
         for inp in re.finditer(r'<input\b[^>]*>', body):
             t = inp.group(0)
@@ -115,10 +201,19 @@ class RNP:
         if 'modalSesionActiva' in lh:
             mfid, mact, mbody = self._form(h, 'continuar')
             mf = self._inputs(mbody)
-            si = next(n for n, mt in mf.items()
-                      if mt['type'] == 'submit' and 'continuar' in mt['val'].lower())
-            d = {mfid: mfid, si: mf[si]['val'], 'javax.faces.ViewState': self._viewstate(h)}
-            self._req(self._abs(mact), d, ref=BASE + 'login.jspx')
+            si = next((n for n, mt in mf.items()
+                       if mt['type'] == 'submit' and 'continuar' in mt['val'].lower()), None)
+            if not mfid or not mact or not si:
+                raise SystemExit('✗ No se pudo cerrar la sesión activa del RNP.')
+            d = {mfid: mfid}
+            for n, meta in mf.items():
+                if meta['type'] == 'hidden' and n not in d:
+                    d[n] = meta['val']
+            d[si] = mf[si]['val']
+            d.setdefault('javax.faces.ViewState', self._viewstate(h))
+            _, mh = self._req(self._abs(mact), d, ref=BASE + 'login.jspx')
+            if 'modalSesionActiva' in mh:
+                raise SystemExit('✗ El RNP mantiene otra sesión activa y no aceptó cerrarla automáticamente.')
 
     def open_persona_bi_form(self):
         index_url = BASE + INDEX_PATH
@@ -187,23 +282,15 @@ def parse_jsf_params(pvp):
 
 
 def find_bienes_inmuebles_persona_link(h):
-    form_re = re.compile(
-        r'<form[^>]*id="([^"]*)"[^>]*action="([^"]*)"[^>]*>(.*?)</form>',
-        re.S)
-    token_re = re.compile(r'<h3>(.*?)</h3>|<a\b([^>]*)>(.*?)</a>', re.S)
-    for form in form_re.finditer(h):
-        fid, action, body = form.groups()
-        if 'Consultas Gratuitas' not in clean(body):
+    for form in parse_forms(h):
+        fid = form['id']
+        action = form['action']
+        if 'Consultas Gratuitas' not in clean(' '.join(form['text'])):
             continue
-        section = ''
-        for token in token_re.finditer(body):
-            if token.group(1):
-                section = clean(token.group(1))
+        for link in form['links']:
+            if link['section'] != 'Bienes Inmuebles' or link['text'] != 'Consulta de Personas por Identificación':
                 continue
-            attrs, inner = token.group(2), token.group(3)
-            text = clean(inner)
-            if section != 'Bienes Inmuebles' or text != 'Consulta de Personas por Identificación':
-                continue
+            attrs = ' '.join(str(v) for v in link['attrs'].values())
             jsf = re.search(r"jsfcljs\(document\.forms\['([^']+)'\],'([^']*)'", attrs)
             if not jsf:
                 continue
