@@ -29,20 +29,36 @@ export function showToast(message, type = 'info') {
   const close = el('button', 'toast__close');
   close.setAttribute('aria-label', 'Cerrar notificación');
   close.append(createSvgIcon(ICONS.close, { size: 14 }));
+  const progress = el('span', 'toast__progress');
 
   let timeout;
+  let paused = false;
   const dismiss = () => {
     clearTimeout(timeout);
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(24px)';
+    toast.style.transform = 'translateX(28px)';
     setTimeout(() => toast.remove(), 200);
   };
 
+  const scheduleDismiss = () => {
+    timeout = setTimeout(dismiss, 5000);
+  };
+
   close.addEventListener('click', dismiss);
-  toast.append(icon, msg, close);
+  toast.addEventListener('mouseenter', () => {
+    clearTimeout(timeout);
+    paused = true;
+  });
+  toast.addEventListener('mouseleave', () => {
+    if (paused) {
+      paused = false;
+      timeout = setTimeout(dismiss, 3000);
+    }
+  });
+  toast.append(icon, msg, close, progress);
   container.append(toast);
 
-  timeout = setTimeout(dismiss, 5000);
+  scheduleDismiss();
 }
 
 export function showEmptyState(title, message, iconName = 'search') {

@@ -4,7 +4,7 @@ import {
 } from './state.js';
 import { fetchJson, postJson } from './api.js';
 import {
-  formatNumber, formatMoney, text, el,
+  formatNumber, formatMoney, text, el, createSvgIcon, ICONS,
 } from './utils.js';
 import { initTheme, renderThemeIcon, toggleTheme } from './theme.js';
 import { showToast, showEmptyState, confirmAction } from './ui.js';
@@ -118,15 +118,17 @@ function renderDetailStats(detail) {
   const outputs = detail.query_outputs?.length || 0;
 
   const chips = [
-    { label: 'Fincas', value: fincas, variant: '' },
-    { label: 'Bienes muebles', value: muebles, variant: '' },
-    { label: 'Evidencias', value: outputs, variant: '' },
-    { label: 'Fuentes', value: fuentes, variant: '' },
-    { label: 'Alertas', value: alertas, variant: alertas > 0 ? 'stat-chip--danger' : '' },
+    { label: 'Fincas', value: fincas, variant: '', icon: ICONS.mapPin },
+    { label: 'Muebles', value: muebles, variant: '', icon: ICONS.truck },
+    { label: 'Evidencias', value: outputs, variant: '', icon: ICONS.fileText },
+    { label: 'Fuentes', value: fuentes, variant: '', icon: ICONS.database },
+    { label: 'Alertas', value: alertas, variant: alertas > 0 ? 'stat-chip--danger' : '', icon: ICONS.alert },
   ];
 
-  chips.forEach(({ label, value, variant }) => {
+  chips.forEach(({ label, value, variant, icon }) => {
     const chip = el('span', `stat-chip ${variant}`.trim());
+    const iconEl = createSvgIcon(icon, { size: 14 });
+    chip.append(iconEl);
     chip.append(el('span', '', label));
     chip.append(el('span', 'stat-chip__value', formatNumber(value)));
     els.detailStats.append(chip);
@@ -143,6 +145,27 @@ function initialsFromName(name) {
   if (!parts.length) return '?';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  ['#0aa8c9', '#0885a0'],
+  ['#84cf0a', '#5fa300'],
+  ['#b54444', '#963a3a'],
+  ['#a9780a', '#7a5a08'],
+  ['#7c4ddf', '#5a35b8'],
+  ['#0aa8c9', '#0885a0'],
+  ['#cf5fa0', '#a04576'],
+  ['#3a8a4a', '#2a6a38'],
+];
+
+function avatarColorFor(name) {
+  if (!name) return AVATAR_COLORS[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  const [a, b] = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+  return `linear-gradient(135deg, ${a} 0%, ${b} 100%)`;
 }
 
 let currentTab = 'summary';
@@ -339,6 +362,7 @@ function renderPersonList() {
       const button = el('button', `person-card ${person.cedula === state.selectedCedula ? 'person-card--active' : ''}`);
       const name = person.nombre || person.first_name || person.cedula;
       const avatar = el('span', 'person-card__avatar', initialsFromName(name));
+      avatar.style.background = avatarColorFor(name);
       button.append(avatar);
       button.append(el('span', 'person-card__name', name));
       button.append(el('span', 'person-card__meta', `Cédula ${person.cedula}`));
@@ -386,7 +410,7 @@ function showEmpty(title, subtitle) {
   els.detailLoading.classList.add('hidden');
   els.heroSection.classList.remove('hidden');
   els.emptyState.classList.remove('hidden');
-  els.emptyState.querySelector('h3').textContent = title;
+  els.emptyState.querySelector('strong').textContent = title;
   els.emptyState.querySelector('p').textContent = subtitle;
   els.heroTitle.textContent = title;
   els.heroSubtitle.textContent = subtitle;

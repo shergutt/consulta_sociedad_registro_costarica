@@ -23,9 +23,9 @@
       <aside class="login-screen__feature" aria-hidden="true">
         <div class="login-screen__feature-brand">
           <div class="brand-mark">RNP</div>
-          <div>
-            <div style="font-size: var(--text-lg); font-weight: 700; letter-spacing: -0.01em;">Intelligence Desk</div>
-            <div style="font-family: var(--font-mono); font-size: var(--text-xs); opacity: 0.75;">Registro Nacional · CR</div>
+          <div class="login-screen__feature-brand-text">
+            <span class="login-screen__feature-brand-name">Intelligence Desk</span>
+            <span class="login-screen__feature-brand-sub">Registro Nacional · CR</span>
           </div>
         </div>
         <div class="login-screen__feature-title">
@@ -160,7 +160,10 @@
         </section>
 
         <section id="emptyState" class="empty-state hidden">
-          <h3>No hay datos seleccionados</h3>
+          <div class="empty-state__icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+          <strong>No hay datos seleccionados</strong>
           <p>Ejecutá un análisis o seleccioná una persona de la lista.</p>
         </section>
 
@@ -182,6 +185,12 @@
           </div>
           <div class="skeleton-layout">
             <div class="skeleton skeleton--title"></div>
+            <div class="skeleton-chips">
+              <div class="skeleton skeleton--chip"></div>
+              <div class="skeleton skeleton--chip"></div>
+              <div class="skeleton skeleton--chip"></div>
+              <div class="skeleton skeleton--chip"></div>
+            </div>
             <div class="skeleton-grid">
               <div class="skeleton skeleton--card"></div>
               <div class="skeleton skeleton--card"></div>
@@ -243,6 +252,21 @@
     <div id="searchPalette" class="command-palette hidden" role="dialog" aria-label="Búsqueda global" aria-modal="true">
       <input id="searchPaletteInput" class="command-palette__input" type="search" autocomplete="off" placeholder="Buscá persona, finca, plano, placa…" aria-label="Término de búsqueda" />
       <div id="searchPaletteResults" class="command-palette__results"></div>
+      <div class="command-palette__footer">
+        <span class="command-palette__hint">
+          <span class="command-palette__key">↑</span>
+          <span class="command-palette__key">↓</span>
+          <span>navegar</span>
+        </span>
+        <span class="command-palette__hint">
+          <span class="command-palette__key">↵</span>
+          <span>seleccionar</span>
+        </span>
+        <span class="command-palette__hint">
+          <span class="command-palette__key">esc</span>
+          <span>cerrar</span>
+        </span>
+      </div>
     </div>
 
     <dialog id="newAnalysisModal" class="dialog">
@@ -323,7 +347,7 @@
               </select>
             </label>
           </div>
-          <div style="margin-top: 16px;">
+          <div class="form-actions">
             <button type="submit" class="button button--primary">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               <span>Crear</span>

@@ -77,7 +77,10 @@ export function initGlobalSearch(onSelect) {
     abortController = new AbortController();
 
     results.innerHTML = '';
-    results.append(el('div', 'command-palette__empty', 'Buscando…'));
+    const loading = el('div', 'command-palette__empty command-palette__empty--loading');
+    loading.append(el('span', 'spinner'));
+    loading.append(el('span', '', 'Buscando…'));
+    results.append(loading);
 
     try {
       const payload = await fetchJson(`/api/search?q=${encodeURIComponent(clean)}&limit=40`, {
@@ -88,7 +91,9 @@ export function initGlobalSearch(onSelect) {
       results.innerHTML = '';
 
       if (raw.length === 0) {
-        results.append(el('div', 'command-palette__empty', 'No se encontraron resultados.'));
+        const empty = el('div', 'command-palette__empty');
+        empty.append(el('span', '', 'No se encontraron resultados para “' + clean + '”.'));
+        results.append(empty);
         selectedIndex = -1;
         return;
       }

@@ -144,8 +144,8 @@
   .search-trigger {
     justify-content: center;
     min-width: 44px;
-    min-height: 44px;
-    padding: 10px;
+    height: 44px;
+    padding: 0;
   }
 
   .search-trigger__shortcut,
@@ -330,9 +330,9 @@
   }
 
   .tab {
-    padding: var(--space-2) var(--space-3);
+    padding: 0 var(--space-3);
     font-size: var(--text-sm);
-    min-height: 40px;
+    height: 36px;
   }
 
   .actions-dropdown__item,
