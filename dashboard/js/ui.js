@@ -2,6 +2,13 @@ import { el, trapFocus, createSvgIcon, ICONS } from './utils.js';
 
 let toastContainer = null;
 
+const TOAST_ICONS = {
+  info: 'info',
+  success: 'check',
+  error: 'alert',
+  warning: 'alert',
+};
+
 function ensureToastContainer() {
   if (!toastContainer) {
     toastContainer = el('div', 'toast-container');
@@ -15,20 +22,24 @@ function ensureToastContainer() {
 export function showToast(message, type = 'info') {
   const container = ensureToastContainer();
   const toast = el('div', `toast toast--${type}`);
+  const iconKey = TOAST_ICONS[type] || 'info';
+  const iconPaths = ICONS[iconKey] || ICONS.info;
+  const icon = createSvgIcon(iconPaths, { size: 18, className: 'toast__icon' });
   const msg = el('p', 'toast__message', message);
-  const close = el('button', 'toast__close', '×');
+  const close = el('button', 'toast__close');
   close.setAttribute('aria-label', 'Cerrar notificación');
+  close.append(createSvgIcon(ICONS.close, { size: 14 }));
 
   let timeout;
   const dismiss = () => {
     clearTimeout(timeout);
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(20px)';
+    toast.style.transform = 'translateX(24px)';
     setTimeout(() => toast.remove(), 200);
   };
 
   close.addEventListener('click', dismiss);
-  toast.append(msg, close);
+  toast.append(icon, msg, close);
   container.append(toast);
 
   timeout = setTimeout(dismiss, 5000);
@@ -36,7 +47,9 @@ export function showToast(message, type = 'info') {
 
 export function showEmptyState(title, message, iconName = 'search') {
   const node = el('div', 'empty-state');
-  node.append(createSvgIcon(ICONS[iconName] || ICONS.search, { className: 'empty-state__icon', width: 48, height: 48 }));
+  const iconWrap = el('div', 'empty-state__icon');
+  iconWrap.append(createSvgIcon(ICONS[iconName] || ICONS.search, { width: 28, height: 28 }));
+  node.append(iconWrap);
   node.append(el('strong', '', title));
   node.append(el('p', '', message));
   return node;

@@ -61,6 +61,7 @@ const els = {
   themeToggle: document.querySelector('#themeToggle'),
   personList: document.querySelector('#personList'),
   personFilter: document.querySelector('#personFilter'),
+  personCount: document.querySelector('#personCount'),
   heroSection: document.querySelector('#heroSection'),
   heroTitle: document.querySelector('#heroTitle'),
   heroSubtitle: document.querySelector('#heroSubtitle'),
@@ -71,6 +72,7 @@ const els = {
   openReportBtn: document.querySelector('#openReportBtn'),
   detailView: document.querySelector('#detailView'),
   detailLoading: document.querySelector('#detailLoading'),
+  detailStats: document.querySelector('#detailStats'),
   emptyState: document.querySelector('#emptyState'),
   reportDialog: document.querySelector('#reportDialog'),
   reportContent: document.querySelector('#reportContent'),
@@ -82,6 +84,66 @@ const els = {
   sidePanel: document.querySelector('#sidePanel'),
   sidePanelToggle: document.querySelector('#sidePanelToggle'),
 };
+
+const TAB_BADGES = {
+  summary: 'tab-summary',
+  fincas: 'tab-fincas',
+  muebles: 'tab-muebles',
+  evidencia: 'tab-evidencia',
+  fuentes: 'tab-fuentes',
+};
+
+function setTabBadge(tab, count) {
+  const tabBtn = document.querySelector(`#${TAB_BADGES[tab]}`);
+  if (!tabBtn) return;
+  const badge = tabBtn.querySelector('.tab__badge');
+  if (!badge) return;
+  const value = Number(count) || 0;
+  badge.dataset.count = String(value);
+  badge.textContent = value > 0 ? formatNumber(value) : '';
+}
+
+function clearTabBadges() {
+  Object.keys(TAB_BADGES).forEach((tab) => setTabBadge(tab, 0));
+}
+
+function renderDetailStats(detail) {
+  if (!els.detailStats) return;
+  els.detailStats.replaceChildren();
+
+  const fincas = detail.fincas?.length || 0;
+  const muebles = detail.movable_assets?.length || 0;
+  const alertas = detail.alerts?.length || 0;
+  const fuentes = detail.source_files?.length || 0;
+  const outputs = detail.query_outputs?.length || 0;
+
+  const chips = [
+    { label: 'Fincas', value: fincas, variant: '' },
+    { label: 'Bienes muebles', value: muebles, variant: '' },
+    { label: 'Evidencias', value: outputs, variant: '' },
+    { label: 'Fuentes', value: fuentes, variant: '' },
+    { label: 'Alertas', value: alertas, variant: alertas > 0 ? 'stat-chip--danger' : '' },
+  ];
+
+  chips.forEach(({ label, value, variant }) => {
+    const chip = el('span', `stat-chip ${variant}`.trim());
+    chip.append(el('span', '', label));
+    chip.append(el('span', 'stat-chip__value', formatNumber(value)));
+    els.detailStats.append(chip);
+  });
+}
+
+function initialsFromName(name) {
+  if (!name) return '?';
+  const cleaned = String(name)
+    .trim()
+    .replace(/\b(de|del|la|las|el|los|y)\b/gi, '')
+    .replace(/\s+/g, ' ');
+  const parts = cleaned.split(' ').filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
 
 let currentTab = 'summary';
 
@@ -262,6 +324,11 @@ function renderPersonList() {
     return haystack.includes(term);
   });
 
+  if (els.personCount) {
+    els.personCount.textContent = formatNumber(filtered.length);
+    els.personCount.dataset.total = String(filtered.length);
+  }
+
   if (!filtered.length) {
     els.personList.replaceChildren(showEmptyState('Sin coincidencias', 'Probá con otro término o ejecutá un nuevo análisis.', 'searchX'));
     return;
@@ -270,9 +337,12 @@ function renderPersonList() {
   els.personList.replaceChildren(
     ...filtered.map((person) => {
       const button = el('button', `person-card ${person.cedula === state.selectedCedula ? 'person-card--active' : ''}`);
-      button.append(el('span', 'person-card__name', person.nombre || person.first_name || person.cedula));
+      const name = person.nombre || person.first_name || person.cedula;
+      const avatar = el('span', 'person-card__avatar', initialsFromName(name));
+      button.append(avatar);
+      button.append(el('span', 'person-card__name', name));
       button.append(el('span', 'person-card__meta', `Cédula ${person.cedula}`));
-      button.append(el('span', 'person-card__stats', `${person.finca_count || 0} fincas · ${person.movable_asset_count || 0} muebles · ${person.alert_count || 0} alertas`));
+      button.append(el('span', 'person-card__stats', `${formatNumber(person.finca_count || 0)} fincas · ${formatNumber(person.movable_asset_count || 0)} muebles · ${formatNumber(person.alert_count || 0)} alertas`));
       button.addEventListener('click', () => {
         selectPerson(person.cedula);
         setSidePanelOpen(false);
@@ -306,6 +376,8 @@ function setDetailLoading(loading) {
     els.detailView.classList.add('hidden');
     els.emptyState.classList.add('hidden');
     els.heroSection.classList.add('hidden');
+    clearTabBadges();
+    if (els.detailStats) els.detailStats.replaceChildren();
   }
 }
 
@@ -318,6 +390,9 @@ function showEmpty(title, subtitle) {
   els.emptyState.querySelector('p').textContent = subtitle;
   els.heroTitle.textContent = title;
   els.heroSubtitle.textContent = subtitle;
+  els.openReportBtn?.classList.add('hidden');
+  clearTabBadges();
+  if (els.detailStats) els.detailStats.replaceChildren();
 }
 
 function renderDetail() {
@@ -335,6 +410,15 @@ function renderDetail() {
   if (detailMeta) detailMeta.textContent = `Último análisis: ${text(detail.analysis.updated_at)} · ${detail.analysis.folder_path}`;
   els.openReportBtn.classList.toggle('hidden', !detail.analysis.report_markdown);
   els.detailView.querySelector('#openReportBtn2')?.classList.toggle('hidden', !detail.analysis.report_markdown);
+
+  renderDetailStats(detail);
+
+  const outputs = detail.query_outputs?.length || 0;
+  setTabBadge('summary', detail.alerts?.length || 0);
+  setTabBadge('fincas', detail.fincas?.length || 0);
+  setTabBadge('muebles', detail.movable_assets?.length || 0);
+  setTabBadge('evidencia', outputs);
+  setTabBadge('fuentes', detail.source_files?.length || 0);
 
   renderSummaryTab(detail);
   renderFincasTab(detail);
@@ -363,7 +447,7 @@ function renderSummaryTab(detail) {
   const titleWrap = el('div');
   titleWrap.append(el('p', 'eyebrow', 'Persona'));
   titleWrap.append(el('h3', 'card__title', detail.person.nombre || detail.person.cedula));
-  header.append(titleWrap, el('span', 'pill', detail.person.cedula));
+  header.append(titleWrap, el('span', 'pill pill--muted', detail.person.cedula));
   personCard.append(header);
 
   const outputCounts = detail.analysis.output_counts || {};
@@ -397,7 +481,7 @@ function renderSummaryTab(detail) {
   const alertTitleWrap = el('div');
   alertTitleWrap.append(el('p', 'eyebrow', 'Alertas'));
   alertTitleWrap.append(el('h3', 'card__title', 'Señales automáticas'));
-  alertHeader.append(alertTitleWrap, el('span', `pill ${detail.alerts.length ? 'pill--danger' : ''}`, `${detail.alerts.length} alertas`));
+  alertHeader.append(alertTitleWrap, el('span', `pill ${detail.alerts.length ? 'pill--danger' : 'pill--success'}`, `${formatNumber(detail.alerts.length)} ${detail.alerts.length === 1 ? 'alerta' : 'alertas'}`));
   alertCard.append(alertHeader);
 
   if (!detail.alerts.length) {
@@ -405,8 +489,8 @@ function renderSummaryTab(detail) {
   } else {
     const list = el('div', 'alert-list');
     detail.alerts.forEach((alert) => {
-      const item = el('article', `alert-item alert-item--${alert.severity}`);
-      item.append(el('strong', '', `${alert.severity.toUpperCase()} · ${text(alert.label)}`));
+      const item = el('article', `alert-item alert-item--${alert.severity || 'low'}`);
+      item.append(el('strong', '', `${(alert.severity || 'low').toUpperCase()} · ${text(alert.label)}`));
       item.append(el('span', '', alert.message));
       list.append(item);
     });
@@ -452,9 +536,10 @@ function renderFincasTab(detail) {
     const card = el('article', 'finca-card');
     const header = el('div', 'finca-card__header');
     header.append(el('h4', 'finca-card__title', `${text(finca.provincia)} ${text(finca.numero)} derecho ${text(finca.derecho)}`));
-    header.append(el('span', Number(finca.alert_count) ? 'pill pill--danger' : 'pill', Number(finca.alert_count) ? `${finca.alert_count} alertas` : 'sin alertas'));
+    const alertCount = Number(finca.alert_count) || 0;
+    header.append(el('span', alertCount ? 'pill pill--danger' : 'pill pill--muted', alertCount ? `${formatNumber(alertCount)} ${alertCount === 1 ? 'alerta' : 'alertas'}` : 'sin alertas'));
     card.append(header);
-    card.append(el('p', 'finca-card__nature', text(finca.naturaleza)));
+    if (finca.naturaleza) card.append(el('p', 'finca-card__nature', text(finca.naturaleza)));
 
     const meta = el('div', 'finca-meta');
     [
@@ -511,7 +596,8 @@ function renderMueblesTab(detail) {
     const header = el('div', 'asset-card__header');
     const number = asset.numero || asset.placa || asset.serie || asset.vin || asset.motor || asset.identificacion;
     header.append(el('h4', 'asset-card__title', `${text(asset.tipo, 'bien_mueble')} ${text(number)}`));
-    header.append(el('span', 'pill', text(asset.estado, 'sin estado')));
+    const estadoText = text(asset.estado, '');
+    header.append(el('span', estadoText ? 'pill pill--info' : 'pill pill--muted', estadoText || 'sin estado'));
     card.append(header);
 
     const meta = el('div', 'asset-meta');

@@ -5,9 +5,12 @@
 
   .hero,
   .detail-header {
+    padding: var(--space-6);
+  }
+
+  .detail-header {
     flex-direction: column;
     align-items: flex-start;
-    padding: var(--space-6);
   }
 
   .hero__title,
@@ -21,6 +24,10 @@
 
   .grid-3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .login-screen {
+    grid-template-columns: 1.1fr 1fr;
   }
 }
 
@@ -41,12 +48,13 @@
     top: var(--app-bar-height);
     left: 0;
     bottom: 0;
-    width: min(320px, 85vw);
+    width: min(340px, 88vw);
     z-index: var(--z-drawer);
     transform: translateX(-100%);
     transition: transform var(--transition-base);
     border-right: 1px solid var(--line);
     border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    box-shadow: var(--shadow-lg);
   }
 
   .side-panel--open {
@@ -56,9 +64,11 @@
   .side-panel-backdrop {
     position: fixed;
     inset: var(--app-bar-height) 0 0 0;
-    background: rgba(15, 23, 42, 0.35);
-    backdrop-filter: blur(2px);
+    background: rgba(10, 12, 8, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     z-index: calc(var(--z-drawer) - 1);
+    animation: backdrop-in 200ms ease;
   }
 
   .app-bar__search {
@@ -66,7 +76,7 @@
   }
 
   .job-chip {
-    max-width: 140px;
+    max-width: 160px;
   }
 
   .user-menu__name {
@@ -95,15 +105,19 @@
   .drawer {
     border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   }
+
+  .login-screen {
+    grid-template-columns: 1fr;
+  }
+
+  .login-screen__feature {
+    display: none;
+  }
 }
 
 @media (max-width: 639px) {
   :root {
     --app-bar-height: 60px;
-  }
-
-  html {
-    -webkit-text-size-adjust: 100%;
   }
 
   body {
@@ -150,6 +164,10 @@
   .job-chip {
     max-width: 120px;
     padding: 8px 12px;
+  }
+
+  .job-chip span {
+    font-size: var(--text-xs);
   }
 
   .button--icon,
@@ -373,6 +391,14 @@
   .toast {
     width: 100%;
   }
+
+  .login-screen__form-side {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .login-box {
+    padding: var(--space-8) var(--space-5);
+  }
 }
 
 @media (max-width: 479px) {
@@ -429,5 +455,14 @@
 
   .content {
     padding: var(--space-3);
+  }
+
+  .detail-header__stats {
+    gap: var(--space-1);
+  }
+
+  .stat-chip {
+    padding: 4px 10px;
+    font-size: 11px;
   }
 }

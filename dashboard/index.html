@@ -2,11 +2,14 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#84cf0a" />
+    <meta name="description" content="Intelligence Desk del Registro Nacional de Costa Rica — análisis centralizado de personas, fincas, bienes muebles, alertas y evidencia registral." />
     <title>RNP Intelligence Desk</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2384cf0a'/%3E%3Ctext x='50' y='62' font-family='monospace' font-size='38' font-weight='700' text-anchor='middle' fill='%230a0a08'%3ERNP%3C/text%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/css/tokens.css" />
     <link rel="stylesheet" href="/css/base.css" />
     <link rel="stylesheet" href="/css/components.css" />
@@ -17,21 +20,50 @@
     <a href="#mainContent" class="skip-link">Saltar al contenido principal</a>
 
     <div id="loginScreen" class="login-screen">
-      <div class="login-box">
-        <div class="brand-mark">RNP</div>
-        <h1>Intelligence Desk</h1>
-        <form id="loginForm">
-          <label class="form-field">
-            <span>Usuario</span>
-            <input id="loginUsername" type="text" autocomplete="username" required />
-          </label>
-          <label class="form-field">
-            <span>Contraseña</span>
-            <input id="loginPassword" type="password" autocomplete="current-password" required />
-          </label>
-          <button type="submit" class="button button--primary">Iniciar sesión</button>
-          <p id="loginError" class="login-error hidden"></p>
-        </form>
+      <aside class="login-screen__feature" aria-hidden="true">
+        <div class="login-screen__feature-brand">
+          <div class="brand-mark">RNP</div>
+          <div>
+            <div style="font-size: var(--text-lg); font-weight: 700; letter-spacing: -0.01em;">Intelligence Desk</div>
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); opacity: 0.75;">Registro Nacional · CR</div>
+          </div>
+        </div>
+        <div class="login-screen__feature-title">
+          <p class="login-screen__feature-eyebrow">Plataforma de análisis registral</p>
+          <h1>Centralizá personas, fincas y bienes muebles en una sola vista.</h1>
+          <p>Consultas extra, evidencia cruda, alertas automáticas y reportes Markdown listos para usar.</p>
+        </div>
+        <ul class="login-screen__feature-list">
+          <li>Fincas, gravámenes, valores y anotaciones en un solo lugar</li>
+          <li>Búsqueda global con ⌘K entre personas, fincas y muebles</li>
+          <li>Alertas automáticas y evidencia HTML / JSON / TXT respaldada</li>
+          <li>Reportes Markdown exportables por análisis</li>
+        </ul>
+      </aside>
+
+      <div class="login-screen__form-side">
+        <div class="login-box">
+          <div class="login-box__header">
+            <div class="brand-mark">RNP</div>
+            <h1>Iniciar sesión</h1>
+            <p>Accedé con tu cuenta de Intelligence Desk para continuar.</p>
+          </div>
+          <form id="loginForm">
+            <label class="form-field">
+              <span>Usuario</span>
+              <input id="loginUsername" type="text" autocomplete="username" required />
+            </label>
+            <label class="form-field">
+              <span>Contraseña</span>
+              <input id="loginPassword" type="password" autocomplete="current-password" required />
+            </label>
+            <button type="submit" class="button button--primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              <span class="button--label">Entrar</span>
+            </button>
+            <p id="loginError" class="login-error hidden"></p>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -82,8 +114,14 @@
               <div class="actions-dropdown__divider"></div>
               <div class="actions-dropdown__section">
                 <span id="userDisplay" class="actions-dropdown__label"></span>
-                <button id="adminPanelBtn" class="button button--ghost actions-dropdown__item hidden" type="button" role="menuitem">Panel admin</button>
-                <button id="logoutBtn" class="button button--ghost actions-dropdown__item" type="button" role="menuitem">Salir</button>
+                <button id="adminPanelBtn" class="button button--ghost actions-dropdown__item hidden" type="button" role="menuitem">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span>Panel admin</span>
+                </button>
+                <button id="logoutBtn" class="button button--ghost actions-dropdown__item" type="button" role="menuitem">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  <span>Salir</span>
+                </button>
               </div>
             </div>
           </div>
@@ -96,6 +134,7 @@
             <p class="eyebrow">Personas analizadas</p>
             <h2>Sujetos</h2>
           </div>
+          <span id="personCount" class="side-panel__count">0</span>
         </div>
         <div class="side-panel__filter">
           <label for="personFilter">Filtrar por cédula o nombre</label>
@@ -113,7 +152,10 @@
             <p id="heroSubtitle" class="hero__subtitle">Personas, fincas, bienes muebles, alertas, consultas extra y evidencia cruda en una sola vista.</p>
           </div>
           <div class="hero__actions">
-            <button id="openReportBtn" class="button button--ghost hidden" type="button">Ver reporte</button>
+            <button id="openReportBtn" class="button button--ghost hidden" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="button--label">Ver reporte</span>
+            </button>
           </div>
         </section>
 
@@ -156,17 +198,36 @@
                 <p class="eyebrow">Persona seleccionada</p>
                 <h2 id="detailTitle" class="detail-header__title"></h2>
                 <p id="detailMeta" class="detail-header__meta"></p>
+                <div id="detailStats" class="detail-header__stats"></div>
               </div>
               <div class="hero__actions">
-                <button id="openReportBtn2" class="button button--ghost" type="button">Ver reporte</button>
+                <button id="openReportBtn2" class="button button--ghost" type="button">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span class="button--label">Ver reporte</span>
+                </button>
               </div>
             </div>
             <nav class="tabs" aria-label="Detalle de persona">
-              <button id="tab-summary" class="tab tab--active" type="button">Resumen</button>
-              <button id="tab-fincas" class="tab" type="button">Fincas</button>
-              <button id="tab-muebles" class="tab" type="button">Bienes muebles</button>
-              <button id="tab-evidencia" class="tab" type="button">Evidencia</button>
-              <button id="tab-fuentes" class="tab" type="button">Fuentes</button>
+              <button id="tab-summary" class="tab tab--active" type="button">
+                <span>Resumen</span>
+                <span class="tab__badge" data-count="0"></span>
+              </button>
+              <button id="tab-fincas" class="tab" type="button">
+                <span>Fincas</span>
+                <span class="tab__badge" data-count="0"></span>
+              </button>
+              <button id="tab-muebles" class="tab" type="button">
+                <span>Bienes muebles</span>
+                <span class="tab__badge" data-count="0"></span>
+              </button>
+              <button id="tab-evidencia" class="tab" type="button">
+                <span>Evidencia</span>
+                <span class="tab__badge" data-count="0"></span>
+              </button>
+              <button id="tab-fuentes" class="tab" type="button">
+                <span>Fuentes</span>
+                <span class="tab__badge" data-count="0"></span>
+              </button>
             </nav>
           </div>
           <div id="panel-summary" class="tab-panel tab-panel--active"></div>
@@ -190,7 +251,9 @@
           <p class="eyebrow">Motor de análisis</p>
           <h3 class="dialog__title">Nuevo análisis</h3>
         </div>
-        <button id="closeNewAnalysisBtn" class="icon-button" type="button" aria-label="Cerrar">×</button>
+        <button id="closeNewAnalysisBtn" class="icon-button" type="button" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <form id="newAnalysisForm" class="dialog__body">
         <label class="form-field">
@@ -201,7 +264,10 @@
       </form>
       <div class="dialog__footer">
         <button id="closeNewAnalysisBtn2" class="button button--ghost" type="button">Cancelar</button>
-        <button id="runAnalysisBtn" class="button button--primary" type="submit" form="newAnalysisForm">Iniciar análisis</button>
+        <button id="runAnalysisBtn" class="button button--primary" type="submit" form="newAnalysisForm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
+          <span>Iniciar análisis</span>
+        </button>
       </div>
     </dialog>
 
@@ -211,7 +277,9 @@
           <p class="eyebrow">Job activo</p>
           <h3 class="dialog__title">Estado del análisis</h3>
         </div>
-        <button id="closeJobDrawerBtn" class="icon-button" type="button" aria-label="Cerrar">×</button>
+        <button id="closeJobDrawerBtn" class="icon-button" type="button" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="drawer__body">
         <div class="job-header">
@@ -221,7 +289,7 @@
           </div>
           <span id="jobDrawerCedula" class="pill"></span>
         </div>
-        <pre id="jobLog" style="height: calc(100% - 80px); margin-top: 16px;"></pre>
+        <pre id="jobLog" class="job-log"></pre>
       </div>
     </dialog>
 
@@ -231,11 +299,13 @@
           <p class="eyebrow">Administración</p>
           <h3 class="dialog__title">Gestión de usuarios</h3>
         </div>
-        <button id="closeAdminBtn" class="icon-button" type="button" aria-label="Cerrar">×</button>
+        <button id="closeAdminBtn" class="icon-button" type="button" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="dialog__body">
-        <form id="addUserForm" class="card" style="margin-bottom: 24px;">
-          <h4 style="margin: 0 0 16px;">Crear usuario</h4>
+        <form id="addUserForm" class="card">
+          <h4>Crear usuario</h4>
           <div class="grid-3">
             <label class="form-field">
               <span>Usuario</span>
@@ -254,42 +324,51 @@
             </label>
           </div>
           <div style="margin-top: 16px;">
-            <button type="submit" class="button button--primary">Crear</button>
+            <button type="submit" class="button button--primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              <span>Crear</span>
+            </button>
           </div>
         </form>
         <div>
-          <h4 style="margin: 0 0 12px;">Usuarios existentes</h4>
+          <h4>Usuarios existentes</h4>
           <div id="userList" class="user-list"></div>
         </div>
       </div>
     </dialog>
 
-    <dialog id="sourceDialog" class="dialog source-dialog">
+    <dialog id="sourceDialog" class="dialog source-dialog pre-block">
       <div class="dialog__header">
         <div>
           <p class="eyebrow">Archivo fuente</p>
           <h3 id="sourceTitle" class="dialog__title"></h3>
         </div>
-        <button id="closeSourceBtn" class="icon-button" type="button" aria-label="Cerrar">×</button>
+        <button id="closeSourceBtn" class="icon-button" type="button" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <pre id="sourceContent" class="source-content"></pre>
     </dialog>
 
-    <dialog id="reportDialog" class="dialog report-dialog">
+    <dialog id="reportDialog" class="dialog report-dialog pre-block">
       <div class="dialog__header">
         <div>
           <p class="eyebrow">Markdown</p>
           <h3 class="dialog__title">Reporte de análisis</h3>
         </div>
-        <button id="closeReportBtn" class="icon-button" type="button" aria-label="Cerrar">×</button>
+        <button id="closeReportBtn" class="icon-button" type="button" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
-      <pre id="reportContent" style="height: calc(100% - 80px);"></pre>
+      <pre id="reportContent" class="report-content"></pre>
     </dialog>
 
     <dialog id="confirmDialog" class="dialog">
       <div class="dialog__header">
         <h3 class="dialog__title">Confirmar</h3>
-        <button id="confirmNoBtn" class="icon-button" type="button" aria-label="Cerrar">×</button>
+        <button id="confirmNoBtn" class="icon-button" type="button" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="dialog__body">
         <p id="confirmMessage"></p>
