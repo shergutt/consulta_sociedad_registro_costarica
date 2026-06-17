@@ -1,6 +1,7 @@
 import { el, trapFocus, createSvgIcon, ICONS } from './utils.js';
 
 let toastContainer = null;
+let initializedDialogs = new WeakSet();
 
 const TOAST_ICONS = {
   info: 'info',
@@ -79,37 +80,173 @@ export function createSkeleton(type, count = 1) {
   return wrapper;
 }
 
-export function confirmAction(message) {
+/**
+ * Wires up generic <dialog> behavior: backdrop click to close, [data-close] buttons,
+ * and a close animation. Safe to call multiple times on the same dialog.
+ * Returns a cleanup function that removes the listeners.
+ */
+export function bindDialog(dialog) {
+  if (!dialog || initializedDialogs.has(dialog)) return () => {};
+  initializedDialogs.add(dialog);
+
+  const onBackdropClick = (event) => {
+    if (event.target === dialog) {
+      const rect = dialog.getBoundingClientRect();
+      const insideDialog = event.clientX >= rect.left
+        && event.clientX <= rect.right
+        && event.clientY >= rect.top
+        && event.clientY <= rect.bottom;
+      if (!insideDialog) animateClose(dialog);
+    }
+  };
+
+  const onCloseClick = (event) => {
+    const btn = event.target.closest('[data-close]');
+    if (btn && dialog.contains(btn)) {
+      event.preventDefault();
+      animateClose(dialog);
+    }
+  };
+
+  const onCancel = (event) => {
+    if (dialog.hasAttribute('data-no-animate')) return;
+    event.preventDefault();
+    animateClose(dialog);
+  };
+
+  dialog.addEventListener('click', onBackdropClick);
+  dialog.addEventListener('click', onCloseClick);
+  dialog.addEventListener('cancel', onCancel);
+
+  return () => {
+    dialog.removeEventListener('click', onBackdropClick);
+    dialog.removeEventListener('click', onCloseClick);
+    dialog.removeEventListener('cancel', onCancel);
+    initializedDialogs.delete(dialog);
+  };
+}
+
+function animateClose(dialog) {
+  if (dialog.classList.contains('is-closing')) return;
+  dialog.classList.add('is-closing');
+  const duration = dialog.classList.contains('drawer') ? 220 : 200;
+  const onEnd = (event) => {
+    if (event.target !== dialog) return;
+    dialog.removeEventListener('animationend', onEnd);
+    dialog.classList.remove('is-closing');
+    if (typeof dialog.close === 'function') {
+      dialog.close();
+    } else {
+      dialog.removeAttribute('open');
+    }
+  };
+  dialog.addEventListener('animationend', onEnd);
+  const fallback = setTimeout(() => {
+    dialog.removeEventListener('animationend', onEnd);
+    dialog.classList.remove('is-closing');
+    if (typeof dialog.close === 'function') {
+      dialog.close();
+    } else {
+      dialog.removeAttribute('open');
+    }
+  }, duration);
+  const observer = new MutationObserver(() => {
+    if (!dialog.classList.contains('is-closing')) {
+      clearTimeout(fallback);
+      observer.disconnect();
+    }
+  });
+  observer.observe(dialog, { attributes: true, attributeFilter: ['class'] });
+}
+
+/**
+ * Opens a <dialog> with focus trap and backdrop-click handling.
+ * Returns a cleanup function.
+ */
+export function openDialog(dialogId) {
+  const dialog = typeof dialogId === 'string' ? document.querySelector(dialogId) : dialogId;
+  if (!dialog) return () => {};
+  bindDialog(dialog);
+  if (typeof dialog.showModal === 'function') {
+    if (!dialog.open) dialog.showModal();
+  } else {
+    dialog.setAttribute('open', '');
+  }
+  const release = trapFocus(dialog);
+  return () => {
+    release();
+    if (typeof dialog.close === 'function') {
+      if (dialog.open) dialog.close();
+    } else {
+      dialog.removeAttribute('open');
+    }
+  };
+}
+
+export function closeDialog(dialogId) {
+  const dialog = typeof dialogId === 'string' ? document.querySelector(dialogId) : dialogId;
+  if (!dialog) return;
+  if (typeof dialog.close === 'function') {
+    if (dialog.open) dialog.close();
+  } else {
+    dialog.removeAttribute('open');
+  }
+}
+
+export function confirmAction(message, options = {}) {
   return new Promise((resolve) => {
     const dialog = document.querySelector('#confirmDialog');
     const messageEl = document.querySelector('#confirmMessage');
+    const titleEl = document.querySelector('#confirmDialogTitle');
+    const eyebrowEl = document.querySelector('#confirmDialogEyebrow');
     const confirmBtn = document.querySelector('#confirmYesBtn');
-    const cancelBtns = document.querySelectorAll('[id^="confirmNoBtn"]');
 
-    if (!dialog || !messageEl || !confirmBtn || !cancelBtns.length) {
+    if (!dialog || !messageEl || !confirmBtn) {
       resolve(confirm(message));
       return;
     }
 
     messageEl.textContent = message;
-    dialog.showModal();
+    if (titleEl) titleEl.textContent = options.title || 'Confirmar';
+    if (eyebrowEl) {
+      if (options.eyebrow) {
+        eyebrowEl.textContent = options.eyebrow;
+        eyebrowEl.hidden = false;
+      } else {
+        eyebrowEl.hidden = true;
+      }
+    }
+    if (options.confirmText) confirmBtn.textContent = options.confirmText;
+    if (options.danger === false) {
+      confirmBtn.classList.remove('button--danger');
+      confirmBtn.classList.add('button--primary');
+    } else {
+      confirmBtn.classList.add('button--danger');
+      confirmBtn.classList.remove('button--primary');
+    }
+
+    bindDialog(dialog);
+    if (typeof dialog.showModal === 'function') {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      dialog.setAttribute('open', '');
+    }
     const release = trapFocus(dialog);
 
     const cleanup = () => {
       release();
-      dialog.close();
       confirmBtn.removeEventListener('click', onConfirm);
-      cancelBtns.forEach((btn) => btn.removeEventListener('click', onCancel));
       dialog.removeEventListener('close', onClose);
+      if (typeof dialog.close === 'function') {
+        if (dialog.open) dialog.close();
+      } else {
+        dialog.removeAttribute('open');
+      }
     };
 
     const onConfirm = () => {
       cleanup();
       resolve(true);
-    };
-    const onCancel = () => {
-      cleanup();
-      resolve(false);
     };
     const onClose = () => {
       cleanup();
@@ -117,25 +254,8 @@ export function confirmAction(message) {
     };
 
     confirmBtn.addEventListener('click', onConfirm);
-    cancelBtns.forEach((btn) => btn.addEventListener('click', onCancel));
-    dialog.addEventListener('close', onClose);
+    dialog.addEventListener('close', onClose, { once: true });
   });
-}
-
-export function openDialog(dialogId) {
-  const dialog = document.querySelector(dialogId);
-  if (!dialog) return () => {};
-  dialog.showModal();
-  const release = trapFocus(dialog);
-  return () => {
-    release();
-    dialog.close();
-  };
-}
-
-export function closeDialog(dialogId) {
-  const dialog = document.querySelector(dialogId);
-  if (dialog) dialog.close();
 }
 
 export function renderIconButton(id, iconPath, label) {

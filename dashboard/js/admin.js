@@ -1,19 +1,19 @@
 import { state } from './state.js';
 import { fetchJson, postJson, deleteJson } from './api.js';
 import { el } from './utils.js';
-import { showToast, confirmAction } from './ui.js';
+import { showToast, confirmAction, openDialog, bindDialog } from './ui.js';
 
 export function initAdmin() {
   const panelBtn = document.querySelector('#adminPanelBtn');
   const dialog = document.querySelector('#adminDialog');
-  const closeBtn = document.querySelector('#closeAdminBtn');
   const addForm = document.querySelector('#addUserForm');
 
+  if (dialog) bindDialog(dialog);
+
   panelBtn?.addEventListener('click', () => {
-    dialog?.showModal();
+    openDialog(dialog);
     loadUsers();
   });
-  closeBtn?.addEventListener('click', () => dialog?.close());
 
   addForm?.addEventListener('submit', async (event) => {
     event.preventDefault();

@@ -7,7 +7,7 @@ import {
   formatNumber, formatMoney, text, el, createSvgIcon, ICONS,
 } from './utils.js';
 import { initTheme, renderThemeIcon, toggleTheme } from './theme.js';
-import { showToast, showEmptyState, confirmAction } from './ui.js';
+import { showToast, showEmptyState, confirmAction, openDialog, closeDialog, bindDialog } from './ui.js';
 import { initGlobalSearch } from './search.js';
 import { initJobs } from './jobs.js';
 import { initAdmin } from './admin.js';
@@ -213,8 +213,8 @@ els.logoutBtn?.addEventListener('click', handleLogout);
 els.refreshBtn?.addEventListener('click', () => loadApp());
 els.openReportBtn?.addEventListener('click', openReport);
 document.querySelector('#openReportBtn2')?.addEventListener('click', openReport);
-els.closeReportBtn?.addEventListener('click', () => els.reportDialog?.close());
-els.closeSourceBtn?.addEventListener('click', () => els.sourceDialog?.close());
+els.reportDialog && bindDialog(els.reportDialog);
+els.sourceDialog && bindDialog(els.sourceDialog);
 
 els.personFilter?.addEventListener('input', (event) => {
   setFilter(event.target.value);
@@ -772,7 +772,7 @@ function renderFuentesTab(detail) {
 async function openSource(id) {
   els.sourceTitle.textContent = 'Cargando...';
   els.sourceContent.textContent = '';
-  els.sourceDialog.showModal();
+  openDialog(els.sourceDialog);
   try {
     const file = await fetchJson(`/api/source-files/${id}`);
     els.sourceTitle.textContent = file.relative_path;
@@ -786,7 +786,7 @@ async function openSource(id) {
 function openReport() {
   if (!state.detail) return;
   els.reportContent.textContent = state.detail.analysis.report_markdown || 'Este análisis no tiene reporte Markdown guardado.';
-  els.reportDialog.showModal();
+  openDialog(els.reportDialog);
 }
 
 async function handleSearchSelect(result) {

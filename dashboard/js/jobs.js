@@ -1,7 +1,7 @@
 import { state, clearJobTimer, setActiveJobId, setJobTimer, setToken } from './state.js';
 import { postJson, fetchJson } from './api.js';
 import { el } from './utils.js';
-import { showToast, openDialog, closeDialog } from './ui.js';
+import { showToast, openDialog, closeDialog, bindDialog } from './ui.js';
 
 const statusLabels = {
   queued: 'En cola',
@@ -13,26 +13,20 @@ const statusLabels = {
 export function initJobs(loadAppFn) {
   const chip = document.querySelector('#jobStatus');
   const drawer = document.querySelector('#jobDrawer');
-  const closeBtn = document.querySelector('#closeJobDrawerBtn');
-  const openBtn = document.querySelector('#newAnalysisBtn');
   const modal = document.querySelector('#newAnalysisModal');
-  const closeModalBtn = document.querySelector('#closeNewAnalysisBtn');
   const form = document.querySelector('#newAnalysisForm');
   const input = document.querySelector('#newCedulaInput');
   const submitBtn = document.querySelector('#runAnalysisBtn');
-  const logEl = document.querySelector('#jobLog');
-  const statusEl = document.querySelector('#jobDrawerStatus');
-  const cedulaEl = document.querySelector('#jobDrawerCedula');
+  const openBtn = document.querySelector('#newAnalysisBtn');
 
-  const closeModalBtn2 = document.querySelector('#closeNewAnalysisBtn2');
-  if (chip) chip.addEventListener('click', () => drawer?.showModal());
-  closeBtn?.addEventListener('click', () => drawer?.close());
-  openBtn?.addEventListener('click', () => {
-    modal?.showModal();
-    input?.focus();
+  if (drawer) bindDialog(drawer);
+  if (modal) bindDialog(modal);
+
+  if (chip) chip.addEventListener('click', () => openDialog(drawer));
+  if (openBtn) openBtn.addEventListener('click', () => {
+    openDialog(modal);
+    if (input) setTimeout(() => input.focus(), 100);
   });
-  closeModalBtn?.addEventListener('click', () => modal?.close());
-  closeModalBtn2?.addEventListener('click', () => modal?.close());
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -51,8 +45,8 @@ export function initJobs(loadAppFn) {
       setActiveJobId(job.id);
       renderJobChip(job);
       renderJobDrawer(job);
-      modal.close();
-      drawer.showModal();
+      closeDialog(modal);
+      openDialog(drawer);
       pollJob(job.id, loadAppFn);
       showToast(`Análisis de ${cedula} iniciado`, 'info');
     } catch (error) {

@@ -1387,9 +1387,6 @@ pre {
   margin: 0;
   overflow: auto;
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--line);
-  border-top: none;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   color: var(--ink);
   background: var(--paper-soft);
   white-space: pre-wrap;
@@ -1397,32 +1394,31 @@ pre {
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.55;
+}
+
+.dialog--pre {
+  width: min(820px, calc(100vw - var(--space-6)));
+}
+
+.dialog__body--pre {
   flex: 1 1 auto;
-}
-
-.pre-block {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 220px);
-  min-height: 240px;
-  padding: 0;
-}
-
-.pre-block pre {
-  border-top: 1px solid var(--line);
+  margin: 0;
+  border-top: 1px solid var(--line-soft);
+  border-radius: 0;
 }
 
 .source-content,
 .report-content {
-  flex: 1 1 auto;
+  /* legacy hooks — class moved to .dialog__body--pre */
 }
 
 .job-log {
   margin-top: var(--space-4);
-  border-top: 1px solid var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   flex: 0 0 auto;
   max-height: 60%;
+  padding: var(--space-3) var(--space-4);
 }
 
 /* ── Job drawer header ─────────────────────────────────────── */

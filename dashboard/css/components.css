@@ -664,11 +664,19 @@
   animation: dialog-in 240ms var(--ease-out);
 }
 
-.dialog::backdrop {
+.dialog.is-closing {
+  animation: dialog-out 200ms var(--ease-in-out) forwards;
+}
+
+.dialog[open]::backdrop {
   background: rgba(10, 12, 8, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   animation: backdrop-in 200ms ease;
+}
+
+.dialog.is-closing::backdrop {
+  animation: backdrop-out 200ms ease forwards;
 }
 
 @keyframes dialog-in {
@@ -676,9 +684,19 @@
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+@keyframes dialog-out {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.96) translateY(8px); }
+}
+
 @keyframes backdrop-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .dialog__header {
@@ -689,6 +707,35 @@
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--line-soft);
   flex-shrink: 0;
+}
+
+.dialog__header-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.dialog__header-text > div:last-child {
+  min-width: 0;
+}
+
+.dialog__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
+
+.dialog--confirm .dialog__icon {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: var(--warning-border);
 }
 
 .dialog__title {
@@ -702,6 +749,23 @@
   padding: var(--space-5);
   overflow-y: auto;
   flex: 1 1 auto;
+}
+
+.dialog__form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dialog__form .dialog__body {
+  flex: 1 1 auto;
+}
+
+.dialog__form .dialog__footer {
+  border-top: 1px solid var(--line-soft);
+  background: var(--paper-soft);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .dialog__footer {
@@ -737,16 +801,29 @@
   flex-direction: column;
 }
 
-.drawer::backdrop {
+.drawer.is-closing {
+  animation: drawer-out 220ms var(--ease-in-out) forwards;
+}
+
+.drawer[open]::backdrop {
   background: rgba(10, 12, 8, 0.45);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   animation: backdrop-in 250ms ease;
 }
 
+.drawer.is-closing::backdrop {
+  animation: backdrop-out 220ms ease forwards;
+}
+
 @keyframes drawer-in {
   from { opacity: 0; transform: translateX(40px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes drawer-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(40px); }
 }
 
 .drawer__header {

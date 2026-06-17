@@ -298,7 +298,9 @@
   .dialog,
   .dialog.admin-dialog,
   .dialog.source-dialog,
-  .dialog.report-dialog {
+  .dialog.report-dialog,
+  .dialog.dialog--pre,
+  .dialog.dialog--confirm {
     width: calc(100vw - var(--space-4));
     max-width: 100vw;
     margin: auto var(--space-2);
