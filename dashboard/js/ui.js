@@ -130,33 +130,30 @@ function animateClose(dialog) {
   if (dialog.classList.contains('is-closing')) return;
   dialog.classList.add('is-closing');
   const duration = dialog.classList.contains('drawer') ? 220 : 200;
+
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    dialog.removeEventListener('animationend', onEnd);
+    clearTimeout(fallback);
+    // Remove is-closing first, then close — keeps the close animation visible
+    // for the full duration because [open] is still present.
+    if (typeof dialog.close === 'function') {
+      dialog.close();
+    } else {
+      dialog.removeAttribute('open');
+    }
+    dialog.classList.remove('is-closing');
+  };
+
   const onEnd = (event) => {
     if (event.target !== dialog) return;
-    dialog.removeEventListener('animationend', onEnd);
-    dialog.classList.remove('is-closing');
-    if (typeof dialog.close === 'function') {
-      dialog.close();
-    } else {
-      dialog.removeAttribute('open');
-    }
+    finish();
   };
+
+  const fallback = setTimeout(finish, duration + 50);
   dialog.addEventListener('animationend', onEnd);
-  const fallback = setTimeout(() => {
-    dialog.removeEventListener('animationend', onEnd);
-    dialog.classList.remove('is-closing');
-    if (typeof dialog.close === 'function') {
-      dialog.close();
-    } else {
-      dialog.removeAttribute('open');
-    }
-  }, duration);
-  const observer = new MutationObserver(() => {
-    if (!dialog.classList.contains('is-closing')) {
-      clearTimeout(fallback);
-      observer.disconnect();
-    }
-  });
-  observer.observe(dialog, { attributes: true, attributeFilter: ['class'] });
 }
 
 /**

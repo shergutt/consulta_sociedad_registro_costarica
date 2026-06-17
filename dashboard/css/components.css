@@ -654,13 +654,13 @@
   background: var(--card);
   color: var(--ink);
   box-shadow: var(--shadow-lg);
-  animation: dialog-in 240ms var(--ease-out);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
-.dialog[open] {
+.dialog[open],
+.dialog.is-closing {
+  display: flex;
+  flex-direction: column;
   animation: dialog-in 240ms var(--ease-out);
 }
 
@@ -795,10 +795,14 @@
   padding: 0;
   margin: 0;
   max-height: none;
-  animation: drawer-in 280ms var(--ease-out);
   overflow: hidden;
+}
+
+.drawer[open],
+.drawer.is-closing {
   display: flex;
   flex-direction: column;
+  animation: drawer-in 280ms var(--ease-out);
 }
 
 .drawer.is-closing {
