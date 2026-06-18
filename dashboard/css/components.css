@@ -324,9 +324,6 @@
 
 /* ── Detail toolbar / Tabs (rectangular) ─────────────────── */
 .detail-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: calc(var(--z-sticky) - 1);
   display: grid;
   gap: var(--space-4);
   padding: var(--space-5) 0 var(--space-4);
