@@ -1,79 +1,92 @@
 :root {
-  /* ── Ink & surfaces (warm walnut on cream) ───────────────── */
-  --ink: #2d2a26;
-  --ink-muted: #6b5d4f;
-  --ink-soft: #9a8a78;
-  --paper: #f5efe6;
-  --paper-soft: #faf7f2;
-  --card: #faf7f2;
+  /* ── Base (cream + black, minimal) ────────────────────────── */
+  --background: #f4efe5;
+  --surface: #faf7ef;
+  --surface-2: #f8f4ea;
+  --paper: #f4efe5;
+  --paper-soft: #f8f4ea;
+  --card: #faf7ef;
   --card-elevated: #ffffff;
-  --line: #e0d4c0;
-  --line-soft: #ebe2d2;
+  --ink: #111111;
+  --text: #111111;
+  --ink-muted: #4a4a4a;
+  --muted-text: #4a4a4a;
+  --ink-soft: #767676;
+  --line: #1a1a1a;
+  --border: #1a1a1a;
+  --line-soft: #1a1a1a;
 
-  /* ── Brand: mustard (primary), burnt orange (CTA), walnut (text) ─ */
-  --accent: #d9a441;
-  --accent-dark: #b88830;
-  --accent-darker: #8c6620;
-  --accent-text: #2d2a26;
-  --accent-soft: #f6e6c4;
-  --accent-softer: #fbf3e1;
-  --accent-border: rgba(217, 164, 65, 0.4);
-  --accent-glow: 0 0 0 4px rgba(217, 164, 65, 0.18);
+  /* ── Bauhaus primary accents ─────────────────────────────── */
+  --red: #d94024;
+  --red-dark: #b5341d;
+  --red-soft: #f7d6cf;
 
-  /* ── Burnt orange (CTAs, primary actions) ────────────────── */
-  --orange: #c96a2e;
-  --orange-dark: #a8541f;
-  --orange-soft: #f5dcc8;
-  --orange-border: rgba(201, 106, 46, 0.4);
-  --orange-glow: 0 0 0 4px rgba(201, 106, 46, 0.18);
+  --blue: #1f5fa8;
+  --blue-dark: #164b86;
+  --blue-soft: #d2ddee;
 
-  /* ── Walnut (text) ────────────────────────────────────────── */
-  --walnut: #6b4f3b;
-  --walnut-dark: #4f3a2a;
-  --walnut-soft: #ede1d2;
+  --yellow: #e5b51f;
+  --yellow-dark: #c09612;
+  --yellow-soft: #f6e6a8;
 
-  /* ── Olive (support) ──────────────────────────────────────── */
-  --olive: #6a7152;
-  --olive-dark: #535939;
-  --olive-soft: #e0e2d2;
-
-  /* ── Teal (secondary accents) ────────────────────────────── */
-  --teal: #3f6b6b;
-  --teal-dark: #2e5151;
-  --teal-soft: #d6e3e3;
-  --teal-text: #ffffff;
+  --black: #111111;
+  --white: #f8f4ea;
 
   /* ── Semantic ────────────────────────────────────────────── */
-  --warning: #c96a2e;
-  --warning-soft: #f5dcc8;
-  --warning-border: rgba(201, 106, 46, 0.4);
-  --danger: #a8443b;
-  --danger-soft: #f1d5d2;
-  --danger-border: rgba(168, 68, 59, 0.4);
-  --success: #6a7152;
-  --success-hover: #535939;
-  --success-soft: #e0e2d2;
-  --info: #3f6b6b;
-  --info-soft: #d6e3e3;
+  --warning: #e5b51f;
+  --warning-soft: #f6e6a8;
+  --warning-border: #1a1a1a;
+  --danger: #d94024;
+  --danger-soft: #f7d6cf;
+  --danger-border: #1a1a1a;
+  --success: #1f5fa8;
+  --success-hover: #164b86;
+  --success-soft: #d2ddee;
+  --info: #1f5fa8;
+  --info-soft: #d2ddee;
 
-  /* ── Shadows (warm-tinted, soft) ─────────────────────────── */
-  --shadow-xs: 0 1px 2px rgba(45, 42, 38, 0.04);
-  --shadow-sm: 0 2px 6px rgba(45, 42, 38, 0.06), 0 1px 2px rgba(45, 42, 38, 0.04);
-  --shadow: 0 8px 24px rgba(45, 42, 38, 0.08), 0 2px 8px rgba(45, 42, 38, 0.04);
-  --shadow-lg: 0 16px 48px rgba(45, 42, 38, 0.14), 0 6px 16px rgba(45, 42, 38, 0.08);
-  --shadow-accent: 0 8px 24px rgba(217, 164, 65, 0.28);
-  --shadow-orange: 0 8px 24px rgba(201, 106, 46, 0.28);
-  --shadow-teal: 0 8px 24px rgba(63, 107, 107, 0.24);
+  /* ── Legacy aliases (so old class names still work) ──────── */
+  --accent: #d94024;
+  --accent-dark: #b5341d;
+  --accent-darker: #8c2812;
+  --accent-text: #f8f4ea;
+  --accent-soft: #f7d6cf;
+  --accent-softer: #fbe9e3;
+  --accent-border: #1a1a1a;
+  --accent-glow: 0 0 0 3px #f6e6a8;
+  --orange: #d94024;
+  --orange-dark: #b5341d;
+  --orange-soft: #f7d6cf;
+  --orange-border: #1a1a1a;
+  --walnut: #111111;
+  --walnut-dark: #000000;
+  --walnut-soft: #f8f4ea;
+  --olive: #1f5fa8;
+  --olive-dark: #164b86;
+  --olive-soft: #d2ddee;
+  --teal: #1f5fa8;
+  --teal-dark: #164b86;
+  --teal-soft: #d2ddee;
+  --teal-text: #f8f4ea;
 
-  /* ── Radii (MCM: more organic, pebble-like) ─────────────── */
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --radius-2xl: 32px;
-  --radius-pebble: 42% 58% 60% 40% / 50% 45% 55% 50%;
-  --radius-arch: 50% 50% 8% 8% / 60% 60% 8% 8%;
-  --radius-full: 999px;
+  /* ── No shadows, no gradients ───────────────────────────── */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-lg: none;
+  --shadow-accent: none;
+  --shadow-orange: none;
+  --shadow-teal: none;
+
+  /* ── Radii (sharp, no curves) ────────────────────────────── */
+  --radius-sm: 0;
+  --radius: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-pebble: 0;
+  --radius-arch: 0;
+  --radius-full: 0;
 
   /* ── Spacing ─────────────────────────────────────────────── */
   --space-1: 4px;
@@ -88,21 +101,21 @@
   --space-16: 64px;
   --space-20: 80px;
 
-  /* ── Type scale ──────────────────────────────────────────── */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-md: 1.125rem;
-  --text-lg: 1.2rem;
-  --text-xl: 1.4rem;
-  --text-2xl: 1.85rem;
-  --text-3xl: 2.5rem;
-  --text-4xl: 3.25rem;
+  /* ── Type scale (Bauhaus: large, tight, uppercase) ───────── */
+  --text-xs: 0.7rem;
+  --text-sm: 0.8rem;
+  --text-base: 0.95rem;
+  --text-md: 1.05rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.6rem;
+  --text-2xl: 2.25rem;
+  --text-3xl: 3.5rem;
+  --text-4xl: 5rem;
 
   /* ── Control heights ─────────────────────────────────────── */
-  --control-sm: 34px;
-  --control-md: 42px;
-  --control-lg: 52px;
+  --control-sm: 36px;
+  --control-md: 44px;
+  --control-lg: 56px;
 
   /* ── Z-index ─────────────────────────────────────────────── */
   --z-base: 0;
@@ -114,101 +127,82 @@
 
   /* ── Layout ──────────────────────────────────────────────── */
   --app-bar-height: 72px;
-  --side-panel-width: 340px;
-  --content-max-width: 1320px;
+  --side-panel-width: 320px;
+  --content-max-width: 1400px;
 
-  /* ── Motion ──────────────────────────────────────────────── */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* ── Motion (functional, not bouncy) ─────────────────────── */
+  --ease-out: cubic-bezier(0.2, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
-  --transition-fast: 160ms var(--ease-in-out);
-  --transition-base: 240ms var(--ease-in-out);
-  --transition-slow: 360ms var(--ease-out);
-  --transition-spring: 320ms var(--ease-spring);
+  --ease-spring: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 120ms var(--ease-in-out);
+  --transition-base: 180ms var(--ease-in-out);
+  --transition-slow: 280ms var(--ease-out);
+  --transition-spring: 200ms var(--ease-in-out);
 
   /* ── Durations ───────────────────────────────────────────── */
   --duration-toast: 5000ms;
-  --duration-skeleton: 1.8s;
+  --duration-skeleton: 1.4s;
 
-  /* ── Gradients (warm, earthy) ────────────────────────────── */
-  --gradient-brand: linear-gradient(135deg, var(--accent) 0%, var(--orange) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-  --gradient-orange: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
-  --gradient-orange-soft: linear-gradient(135deg, var(--orange-soft) 0%, var(--accent-softer) 100%);
-  --gradient-card: linear-gradient(180deg, var(--card) 0%, var(--paper-soft) 100%);
-  --gradient-warm: linear-gradient(135deg, var(--accent-soft) 0%, var(--orange-soft) 50%, var(--walnut-soft) 100%);
-  --gradient-sunburst: conic-gradient(from 0deg, var(--accent) 0%, var(--orange) 25%, var(--walnut) 50%, var(--teal) 75%, var(--accent) 100%);
-  --gradient-hero: radial-gradient(circle at 100% 0%, var(--accent-soft) 0%, transparent 50%), radial-gradient(circle at 0% 100%, var(--orange-soft) 0%, transparent 45%), linear-gradient(180deg, var(--card) 0%, var(--paper-soft) 100%);
-  --gradient-login: radial-gradient(ellipse at 30% 20%, var(--accent-soft) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, var(--orange-soft) 0%, transparent 50%), linear-gradient(180deg, var(--paper) 0%, var(--paper-soft) 100%);
+  /* ── Gradients (Bauhaus uses NO gradients) ───────────────── */
+  --gradient-brand: none;
+  --gradient-accent: none;
+  --gradient-orange: none;
+  --gradient-orange-soft: none;
+  --gradient-card: none;
+  --gradient-warm: none;
+  --gradient-sunburst: none;
+  --gradient-hero: var(--surface-2);
+  --gradient-login: var(--background);
 
-  /* ── Typography ──────────────────────────────────────────── */
-  --font-sans: "Outfit", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Outfit", "Futura", "Avenir", system-ui, sans-serif;
+  /* ── Typography (geometric sans) ─────────────────────────── */
+  --font-sans: "Montserrat", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Montserrat", "Futura", "Avenir", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "IBM Plex Mono", "SF Mono", Consolas, monospace;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 [data-theme="dark"] {
-  --ink: #f0ebe2;
-  --ink-muted: #b8aa98;
-  --ink-soft: #8a7d6e;
-  --paper: #1a1714;
-  --paper-soft: #221f1b;
-  --card: #28241f;
-  --card-elevated: #322e28;
-  --line: #3d3830;
-  --line-soft: #322e28;
+  --background: #0a0a0a;
+  --surface: #161616;
+  --surface-2: #1a1a1a;
+  --paper: #0a0a0a;
+  --paper-soft: #161616;
+  --card: #161616;
+  --card-elevated: #1f1f1f;
+  --ink: #f8f4ea;
+  --text: #f8f4ea;
+  --ink-muted: #b0b0b0;
+  --muted-text: #b0b0b0;
+  --ink-soft: #767676;
+  --line: #f8f4ea;
+  --border: #f8f4ea;
+  --line-soft: #f8f4ea;
 
-  --accent: #e0b258;
-  --accent-dark: #c4923a;
-  --accent-darker: #a07a28;
-  --accent-text: #1a1714;
-  --accent-soft: #3d2f15;
-  --accent-softer: #2a2110;
-  --accent-border: rgba(224, 178, 88, 0.4);
-  --accent-glow: 0 0 0 4px rgba(224, 178, 88, 0.18);
+  --red: #e64a30;
+  --red-dark: #c43a22;
+  --red-soft: #3a1a14;
 
-  --orange: #d97a3e;
-  --orange-dark: #b8602a;
-  --orange-soft: #3a2418;
-  --orange-border: rgba(217, 122, 62, 0.4);
-  --orange-glow: 0 0 0 4px rgba(217, 122, 62, 0.18);
+  --blue: #3a78c8;
+  --blue-dark: #2a5fa8;
+  --blue-soft: #0e1d34;
 
-  --walnut: #b89a82;
-  --walnut-dark: #9a7c64;
-  --walnut-soft: #2d2520;
+  --yellow: #f0c234;
+  --yellow-dark: #d0a82a;
+  --yellow-soft: #3a2f0a;
 
-  --olive: #8a926a;
-  --olive-dark: #6e7655;
-  --olive-soft: #2a2d1f;
+  --accent-soft: #3a1a14;
+  --accent-softer: #1f0e0a;
+  --orange-soft: #3a1a14;
+  --walnut-soft: #1f1f1f;
+  --olive-soft: #0e1d34;
+  --teal-soft: #0e1d34;
+  --teal-text: #0a0a0a;
 
-  --teal: #5a8a8a;
-  --teal-dark: #4a7878;
-  --teal-soft: #1e3030;
-  --teal-text: #1a1714;
+  --warning-soft: #3a2f0a;
+  --danger-soft: #3a1a14;
+  --success-soft: #0e1d34;
+  --info-soft: #0e1d34;
 
-  --warning: #d97a3e;
-  --warning-soft: #3a2418;
-  --warning-border: rgba(217, 122, 62, 0.4);
-  --danger: #d0635a;
-  --danger-soft: #3a1f1c;
-  --danger-border: rgba(208, 99, 90, 0.4);
-  --success: #8a926a;
-  --success-hover: #6e7655;
-  --success-soft: #2a2d1f;
-  --info: #5a8a8a;
-  --info-soft: #1e3030;
-
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6), 0 6px 16px rgba(0, 0, 0, 0.4);
-  --shadow-accent: 0 8px 24px rgba(224, 178, 88, 0.2);
-  --shadow-orange: 0 8px 24px rgba(217, 122, 62, 0.2);
-  --shadow-teal: 0 8px 24px rgba(90, 138, 138, 0.18);
-
-  --gradient-card: linear-gradient(180deg, var(--card) 0%, var(--paper-soft) 100%);
-  --gradient-warm: linear-gradient(135deg, var(--accent-soft) 0%, var(--orange-soft) 50%, var(--walnut-soft) 100%);
-  --gradient-hero: radial-gradient(circle at 100% 0%, var(--accent-soft) 0%, transparent 50%), radial-gradient(circle at 0% 100%, var(--orange-soft) 0%, transparent 45%), linear-gradient(180deg, var(--card) 0%, var(--paper-soft) 100%);
-  --gradient-login: radial-gradient(ellipse at 30% 20%, var(--accent-soft) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, var(--orange-soft) 0%, transparent 50%), linear-gradient(180deg, var(--paper) 0%, var(--paper-soft) 100%);
+  --gradient-hero: var(--surface-2);
+  --gradient-login: var(--background);
 }
