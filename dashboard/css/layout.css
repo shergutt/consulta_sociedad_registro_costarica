@@ -88,8 +88,8 @@
 }
 
 .search-trigger:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .search-trigger:focus-visible {
@@ -186,12 +186,12 @@
 }
 
 .actions-dropdown__item:hover:not(:disabled) {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .actions-dropdown__item:hover:not(:disabled) svg {
-  color: var(--surface);
+  color: var(--ink);
 }
 
 .actions-dropdown__item svg {
@@ -248,8 +248,8 @@
 }
 
 .job-chip:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
   transform: none;
 }
 
@@ -434,12 +434,12 @@
 }
 
 .person-card:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .person-card:hover .person-card__meta {
-  color: var(--yellow);
+  color: var(--red);
 }
 
 .person-card--active {
@@ -700,12 +700,13 @@
 }
 
 .stat-chip:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .stat-chip:hover svg {
-  color: var(--surface);
+  color: var(--ink);
 }
 
 .stat-chip__value {
@@ -715,7 +716,7 @@
 }
 
 .stat-chip:hover .stat-chip__value {
-  color: var(--yellow);
+  color: var(--ink);
 }
 
 .stat-chip--danger {
@@ -727,10 +728,11 @@
 .stat-chip--danger .stat-chip__value { color: var(--white); }
 .stat-chip--danger svg { color: var(--white); }
 .stat-chip--danger:hover {
-  background: var(--ink);
+  background: var(--red-dark);
   color: var(--white);
+  border-color: var(--ink);
 }
-.stat-chip--danger:hover .stat-chip__value { color: var(--yellow); }
+.stat-chip--danger:hover .stat-chip__value { color: var(--white); }
 
 .detail-view {
   display: grid;
@@ -755,12 +757,12 @@
 }
 
 .facts div:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .facts div:hover dd {
-  color: var(--yellow);
+  color: var(--ink);
 }
 
 .facts dt {
@@ -795,12 +797,12 @@
 }
 
 .alert-item:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .alert-item:hover strong {
-  color: var(--yellow);
+  color: var(--ink);
 }
 
 .alert-item--high {
@@ -830,7 +832,7 @@
 }
 
 .alert-item:hover strong {
-  color: var(--yellow);
+  color: var(--ink);
 }
 
 .alert-item span {
@@ -840,7 +842,7 @@
 }
 
 .alert-item:hover span {
-  color: var(--surface);
+  color: var(--ink);
 }
 
 /* ── Grids (strict rectangular) ───────────────────────────── */
@@ -876,8 +878,8 @@
 
 .finca-card:hover,
 .asset-card:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .finca-card:hover .finca-card__nature,
@@ -887,8 +889,8 @@
 .finca-card:hover .finca-detail-rows div,
 .finca-card:hover .asset-card__title,
 .asset-card:hover .finca-card__title {
-  color: var(--surface);
-  border-color: var(--surface);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .finca-card:hover .finca-meta span,
@@ -896,18 +898,18 @@
 .finca-card:hover .finca-detail-rows span,
 .asset-card:hover .finca-meta span,
 .asset-card:hover .asset-meta span {
-  color: var(--yellow);
+  color: var(--muted-text);
 }
 
 .finca-card:hover .finca-meta div,
 .finca-card:hover .asset-meta div {
-  background: transparent;
-  border-color: var(--surface);
+  background: var(--card);
+  border-color: var(--ink);
 }
 
 .finca-card:hover .finca-card__nature {
-  background: var(--yellow);
-  color: var(--ink);
+  background: var(--blue);
+  color: var(--white);
   border-color: var(--ink);
 }
 
@@ -964,13 +966,14 @@
 
 .finca-meta div:hover,
 .asset-meta div:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .finca-meta div:hover strong,
 .asset-meta div:hover strong {
-  color: var(--yellow);
+  color: var(--ink);
 }
 
 .finca-meta span,
@@ -1081,8 +1084,8 @@
 }
 
 .evidence-chip:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .evidence-chip--active {
@@ -1150,13 +1153,13 @@
 }
 
 .evidence-card:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .evidence-card:hover .pill {
-  color: var(--surface);
-  border-color: var(--surface);
+  color: var(--ink);
+  border-color: var(--ink);
   background: transparent;
 }
 
@@ -1182,7 +1185,7 @@
 }
 
 .evidence-card:hover .evidence-card__main > p {
-  color: var(--surface);
+  color: var(--ink);
 }
 
 .evidence-meta {
@@ -1203,9 +1206,9 @@
 }
 
 .evidence-card:hover .evidence-meta div {
-  background: var(--ink);
-  color: var(--surface);
-  border-color: var(--surface);
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .evidence-meta dt {
@@ -1227,7 +1230,7 @@
 }
 
 .evidence-card:hover .evidence-meta dd {
-  color: var(--yellow);
+  color: var(--ink);
 }
 
 .source-actions {
@@ -1252,8 +1255,9 @@
 }
 
 .mini-source:hover:not(:disabled) {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .mini-source:disabled {
@@ -1277,13 +1281,13 @@
 }
 
 .source-item:hover {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 .source-item:hover .pill {
-  color: var(--surface);
-  border-color: var(--surface);
+  color: var(--ink);
+  border-color: var(--ink);
   background: transparent;
 }
 
@@ -1303,7 +1307,7 @@
 }
 
 .source-item:hover span {
-  color: var(--surface);
+  color: var(--muted-text);
 }
 
 /* ── Login screen (Bauhaus split) ─────────────────────────── */
