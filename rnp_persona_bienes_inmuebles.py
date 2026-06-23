@@ -540,6 +540,113 @@ def load_dotenv(path='.env'):
             os.environ.setdefault(k, v)
 
 
+MUEBLES_TIPO_ID = {'1': '000001', '2': '000003'}
+
+
+def _import_bienes_muebles():
+    import importlib
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    return importlib.import_module('rnp_persona_bienes_muebles')
+
+
+def consultar_bienes_muebles(rnp, tipo_id, partes):
+    """Reuse an authenticated RNP session to query Bienes Muebles por Identificación.
+
+    Returns (result, result_html) or None when the muebles option is unavailable
+    for this account/session.
+    """
+    bm = _import_bienes_muebles()
+    index_url = bm.BASE + bm.INDEX_PATH
+    _, h = rnp._req(index_url, ref=bm.BASE + 'login.jspx')
+    vs = rnp._viewstate(h)
+    link = bm.find_bm_persona_link(h)
+    if not vs or not link:
+        return None
+    nav = {link['form']: link['form'], 'javax.faces.ViewState': vs}
+    nav.update(link['params'])
+    _, form = rnp._req(rnp._abs(link['action']), nav, ref=index_url)
+    if 'Consulta de Persona por Tipo de Identificación - Bienes Muebles' not in clean(form):
+        return None
+    vs2 = rnp._viewstate(form)
+    url = bm.BASE + bm.FORM_PATH
+    payload = {
+        'params': 'params',
+        'params:j_id268': tipo_id,
+        'cedulaFisicaPrimeraParte': partes[0],
+        'cedulaFisicaSegundaParte': partes[1],
+        'cedulaFisicaTerceraParte': partes[2],
+        'params:j_id448': 'params:j_id448',
+        'nombreConsulta': 'Indice de Personas',
+        'numeroConsulta': '47',
+        'javax.faces.ViewState': vs2,
+        'AJAXREQUEST': 'params',
+        'operacion': 'search',
+        'page': '1',
+    }
+    _, hh = rnp._req(url, payload, ref=url, ajax=True)
+    return bm.parse_result(hh), hh
+
+
+def bien_detalle_muebles(rnp, result_html, bien):
+    """Open the detail page of a bien mueble reusing the inmuebles RNP session."""
+    bm = _import_bienes_muebles()
+    vs = rnp._viewstate(result_html)
+    data = {'params': 'params', 'javax.faces.ViewState': vs}
+    data.update(bien['params'])
+    url1, h1 = rnp._req(bm.BASE + bm.FORM_PATH, data, ref=bm.BASE + bm.FORM_PATH)
+    link2 = re.search(r"jsfcljs\(document\.forms\['(j_id\d+)'\],'([^']*bienLink[^']*)'", h1)
+    if not link2:
+        return bm.parse_bien_detail(h1), h1
+    form_id2 = link2.group(1)
+    params2 = bm.parse_jsf_params(link2.group(2))
+    act2 = re.search(rf'<form[^>]*id="{form_id2}"[^>]*action="([^"]*)"', h1)
+    url2 = rnp._abs(act2.group(1)) if act2 else url1
+    vs2 = rnp._viewstate(h1)
+    data2 = {form_id2: form_id2, 'javax.faces.ViewState': vs2}
+    data2.update(params2)
+    _, h2 = rnp._req(url2, data2, ref=url1)
+    return bm.parse_bien_detail(h2), h2
+
+
+def guardar_bienes_muebles(rnp, tipo, partes, out_dir):
+    """Always query bienes muebles and save them under {out_dir}/bienes_muebles/.
+
+    A cédula with zero fincas but movable assets is still captured this way,
+    and the ingest step never sees an empty folder. Creates the directory
+    even when there are no results, so a 'queried, empty' state is recorded.
+    """
+    tipo_id = MUEBLES_TIPO_ID.get(tipo)
+    if not tipo_id:
+        print('• Tipo de identificación sin mapeo a bienes muebles; se omite.', file=sys.stderr)
+        return
+    bm = _import_bienes_muebles()
+    muebles_dir = os.path.join(out_dir, 'bienes_muebles')
+    print('• Consultando Bienes Muebles por Identificación…', file=sys.stderr)
+    try:
+        muebles = consultar_bienes_muebles(rnp, tipo_id, partes)
+    except Exception as exc:
+        print(f'✗ No se pudo consultar bienes muebles: {exc}', file=sys.stderr)
+        os.makedirs(muebles_dir, exist_ok=True)
+        return
+    if not muebles:
+        print('• No se encontró la opción de Bienes Muebles por identificación.', file=sys.stderr)
+        os.makedirs(muebles_dir, exist_ok=True)
+        return
+    result, result_html = muebles
+    bm.print_result(result)
+    if result['bienes']:
+        print()
+        print(f'Guardando detalles de {len(result["bienes"])} bien(es) mueble(s) en {muebles_dir}...')
+        for bien in result['bienes']:
+            print(f'• Abriendo bien mueble {bien["index"]} {bien["identificacion"]}...', file=sys.stderr)
+            detail, detail_html = bien_detalle_muebles(rnp, result_html, bien)
+            json_path, txt_path, html_path = bm.save_bien_files(muebles_dir, bien, detail, detail_html)
+            tipo_b, numero, _, _ = bm.bien_summary_fields(bien, detail)
+            print(f'- {tipo_b} {numero}: {txt_path} | {json_path} | {html_path}')
+    else:
+        os.makedirs(muebles_dir, exist_ok=True)
+
+
 def main():
     ap = argparse.ArgumentParser(
         description='Consulta Personas por Tipo de Identificación - Bienes Inmuebles en el RNP.')
@@ -552,6 +659,8 @@ def main():
                     help='Alias antiguo de --salida')
     ap.add_argument('--no-guardar-fincas', action='store_true',
                     help='Solo lista resultados; no abre ni guarda el detalle de cada finca')
+    ap.add_argument('--no-muebles', action='store_true',
+                    help='No consultes ni guardes bienes muebles (por defecto siempre se consultan)')
     ap.add_argument('--user', help='Correo de la cuenta RNP (o env RNP_USER)')
     ap.add_argument('--pass', dest='password', help='Contraseña RNP (o env RNP_PASS)')
     args = ap.parse_args()
@@ -580,6 +689,9 @@ def main():
             detail, detail_html = rnp.finca_detalle(result_html, finca)
             json_path, txt_path, html_path = save_finca_files(out_dir, finca, detail, detail_html)
             print(f'- {finca["numero"]}: {txt_path} | {json_path} | {html_path}')
+
+    if not args.no_muebles:
+        guardar_bienes_muebles(rnp, tipo, partes, out_dir)
 
 
 if __name__ == '__main__':
