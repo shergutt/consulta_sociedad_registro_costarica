@@ -337,6 +337,13 @@
     border-radius: 0;
   }
 
+  #jobDrawer {
+    top: 0;
+    width: calc(100vw - var(--space-4));
+    height: calc(100vh - var(--space-8));
+    max-height: calc(100vh - var(--space-8));
+  }
+
   .drawer__body {
     padding: var(--space-4);
   }

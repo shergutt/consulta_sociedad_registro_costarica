@@ -817,6 +817,38 @@
   flex-shrink: 0;
 }
 
+/* ── Job drawer: fixed-size centered modal with scrolling ─── */
+#jobDrawer {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: min(720px, calc(100vw - var(--space-8)));
+  height: min(640px, calc(100vh - var(--space-8)));
+  max-height: min(640px, calc(100vh - var(--space-8)));
+  margin: auto;
+}
+
+#jobDrawer[open] {
+  animation: dialog-in 200ms var(--ease-out);
+}
+
+#jobDrawer.is-closing {
+  animation: dialog-out 180ms var(--ease-in-out) forwards;
+}
+
+#jobDrawer .drawer__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#jobDrawer .job-log {
+  flex: 1 1 auto;
+  max-height: none;
+  overflow-y: auto;
+}
+
 /* ── Form fields (rectangular, sharp) ─────────────────────── */
 .form-field {
   display: grid;
