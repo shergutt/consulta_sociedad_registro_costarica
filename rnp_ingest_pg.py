@@ -228,8 +228,9 @@ def ingest_folder(db_url, folder_path, cedula=None, user_id=None):
 
     finca_records = load_fincas(folder)
     movable_records = load_movable_assets(folder)
-    if not finca_records and not movable_records:
-        raise SystemExit(f"No encontré JSONs de finca ni bienes muebles en: {folder}")
+    empty_run = not finca_records and not movable_records
+    if empty_run:
+        print(f"• Cédula {cedula} sin fincas ni bienes muebles; registrando corrida vacía.")
 
     owner = (
         (finca_records[0]["detalle"].get("propietario") if finca_records else None)
