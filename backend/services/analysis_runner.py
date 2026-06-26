@@ -12,7 +12,7 @@ from config import get_settings
 
 settings = get_settings()
 
-SKILL_RUNNER = Path.home() / ".codex/skills/analyze-rnp-cedula/scripts/build_rnp_report.py"
+SKILL_RUNNER = Path(settings.project_dir) / "build_rnp_report.py"
 
 _jobs: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
@@ -150,7 +150,7 @@ def _run_job(job_id: str, cedula: str, pausa: float, limite: int | None) -> None
         _append_log(job_id, f"MiniMax autorizó: {decision.get('action')}")
         if decision.get("reason"):
             _append_log(job_id, f"MiniMax: {decision['reason']}")
-        _append_log(job_id, "Ejecutando skill analyze-rnp-cedula...")
+        _append_log(job_id, f"Ejecutando orquestador: {SKILL_RUNNER}")
 
         sub_env = os.environ.copy()
         sub_env["RNP_USER"] = settings.rnp_user
