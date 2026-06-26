@@ -470,23 +470,24 @@ def resolve_project_path(project, value):
     return path if path.is_absolute() else project / path
 
 
-def save_database(project, folder, cedula, db_path):
+def save_database(project, folder, cedula, db_path, user_id=None):
     if db_path in ('postgresql', 'pg'):
-        pg_script = project / 'rnp_ingest_pg.py'
+        pg_script = project / 'backend' / 'rnp_ingest_pg.py'
+        if not pg_script.exists():
+            pg_script = project / 'rnp_ingest_pg.py'
         if not pg_script.exists():
             print('! rnp_ingest_pg.py not found; PostgreSQL ingest skipped', file=sys.stderr)
             return None
-        run(
-            [
-                sys.executable,
-                str(pg_script),
-                str(folder),
-                '--cedula',
-                cedula,
-            ],
-            cwd=project,
-            timeout=None,
-        )
+        cmd = [
+            sys.executable,
+            str(pg_script),
+            str(folder),
+            '--cedula',
+            cedula,
+        ]
+        if user_id is not None:
+            cmd += ['--user-id', str(user_id)]
+        run(cmd, cwd=project, timeout=None)
         return 'postgresql'
 
     db_script = project / 'rnp_database.py'
@@ -524,6 +525,7 @@ def main():
     ap.add_argument('--no-muebles', action='store_true', help='Skip Bienes Muebles by identification')
     ap.add_argument('--pausa', type=float, default=15.0, help='Seconds between batch queries')
     ap.add_argument('--limite', type=int, help='Limit records per auxiliary query script, useful for tests')
+    ap.add_argument('--user-id', type=int, help='User ID for ownership (passed to ingest)')
     args = ap.parse_args()
 
     project = Path(args.project).resolve()
@@ -554,7 +556,7 @@ def main():
         if not finca_files(folder) and not mueble_files(folder):
             print('! No records to ingest; SQLite database skipped', file=sys.stderr)
         else:
-            db_path = save_database(project, folder, args.cedula, args.db)
+            db_path = save_database(project, folder, args.cedula, args.db, user_id=args.user_id)
             if db_path:
                 print(f'✓ SQLite database updated: {db_path}')
 

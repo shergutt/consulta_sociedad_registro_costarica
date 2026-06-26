@@ -129,7 +129,7 @@ def _minimax_preflight(cedula: str) -> dict:
     return decision
 
 
-def _run_job(job_id: str, cedula: str, pausa: float, limite: int | None) -> None:
+def _run_job(job_id: str, cedula: str, pausa: float, limite: int | None, user_id: int | None = None) -> None:
     started_at = _now_iso()
     project_dir = settings.project_dir
     cmd = [
@@ -140,6 +140,8 @@ def _run_job(job_id: str, cedula: str, pausa: float, limite: int | None) -> None
     ]
     if limite is not None:
         cmd.extend(["--limite", str(limite)])
+    if user_id is not None:
+        cmd.extend(["--user-id", str(user_id)])
 
     _update_job(job_id, status="running", started_at=started_at, command=cmd)
     _append_log(job_id, f"AI runner: {settings.ai_model}")
@@ -227,7 +229,7 @@ def start_analysis(cedula: str, user_id: int | None, pausa: float = 15.0, limite
     with _jobs_lock:
         _jobs[job_id] = job
 
-    thread = threading.Thread(target=_run_job, args=(job_id, digits, pausa, limite), daemon=True)
+    thread = threading.Thread(target=_run_job, args=(job_id, digits, pausa, limite, user_id), daemon=True)
     thread.start()
     return get_job(job_id, user_id=user_id, include_log=True)
 

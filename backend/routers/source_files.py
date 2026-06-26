@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import exists as sa_exists
 from sqlalchemy.orm import Session as DBSession
 from database import get_db
 from schemas import SourceFileDetail
-from models import SourceFile, QueryRun, Person
+from models import SourceFile, QueryRun, Person, PersonQuery
 from auth import get_optional_user
 
 router = APIRouter(tags=["source_files"])
@@ -15,7 +16,7 @@ def source_file(
     db: DBSession = Depends(get_db),
 ):
     row = (
-        db.query(SourceFile, Person.cedula, Person.nombre)
+        db.query(SourceFile, Person.id.label("person_id"), Person.cedula, Person.nombre)
         .join(QueryRun, QueryRun.id == SourceFile.query_run_id)
         .join(Person, Person.id == QueryRun.person_id)
         .filter(SourceFile.id == source_id)
@@ -25,6 +26,19 @@ def source_file(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No existe archivo fuente {source_id}")
 
     sf = row[0]
+    person_id = row.person_id
+
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Autenticación requerida")
+    if user.role != "admin":
+        can_see = db.query(
+            sa_exists().where(
+                (PersonQuery.person_id == person_id) & (PersonQuery.user_id == user.id)
+            )
+        ).scalar()
+        if not can_see:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No existe archivo fuente {source_id}")
+
     return SourceFileDetail(
         id=sf.id,
         query_run_id=sf.query_run_id,

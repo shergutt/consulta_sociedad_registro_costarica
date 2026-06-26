@@ -22,7 +22,7 @@ def verify_password(password: str, stored_hash: str) -> bool:
     try:
         salt, hashed = stored_hash.split("$", 1)
         check = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 100000).hex()
-        return check == hashed
+        return secrets.compare_digest(check, hashed)
     except (ValueError, AttributeError):
         return False
 
