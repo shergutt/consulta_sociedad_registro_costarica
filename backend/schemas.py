@@ -193,6 +193,13 @@ class SourceFileDetail(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PersonOut(BaseModel):
+    cedula: str
+    nombre: Optional[str] = None
+    first_name: Optional[str] = None
+    latest_folder_path: Optional[str] = None
+
+
 class PersonDetailResponse(BaseModel):
     person: PersonOut
     analysis: dict
